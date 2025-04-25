@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterviewTrainer.API", "InterviewTrainer.API\InterviewTrainer.API.csproj", "{B0288927-68F9-496A-AB77-74AC399BD63A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterviewTrainer.Domain", "InterviewTrainer.Domain\InterviewTrainer.Domain.csproj", "{C0A893C8-43D3-4553-8CB8-3BEC1D4E968F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B0288927-68F9-496A-AB77-74AC399BD63A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0288927-68F9-496A-AB77-74AC399BD63A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0288927-68F9-496A-AB77-74AC399BD63A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0288927-68F9-496A-AB77-74AC399BD63A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0A893C8-43D3-4553-8CB8-3BEC1D4E968F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0A893C8-43D3-4553-8CB8-3BEC1D4E968F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0A893C8-43D3-4553-8CB8-3BEC1D4E968F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0A893C8-43D3-4553-8CB8-3BEC1D4E968F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

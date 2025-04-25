@@ -1,0 +1,6 @@
+@InterviewTrainer.API_HostAddress = http://localhost:5049
+
+GET {{InterviewTrainer.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
