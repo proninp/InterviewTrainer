@@ -1,9 +1,12 @@
-﻿namespace InterviewTrainer.Application.DTOs.Questions;
+﻿using InterviewTrainer.Domain.Enums;
+
+namespace InterviewTrainer.Application.DTOs.Questions;
 
 public record QuestionFilterDto(
     int ItemsPerPage,
     int Page,
     Guid? TopicId = null,
-    Guid? DifficultyId = null,
+    Difficulty? Difficulty = null,
+    QuestionStatus? Status = null,
     string? Text = null,
     bool Archived = false);

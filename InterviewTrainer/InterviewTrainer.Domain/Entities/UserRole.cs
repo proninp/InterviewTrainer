@@ -2,7 +2,7 @@
 
 namespace InterviewTrainer.Domain.Entities;
 
-public class UserRole(Guid userId, Guid roleId) : IdentityModel
+public class UserRole(Guid userId, Guid roleId)
 {
     public Guid UserId { get; set; } = userId;
 

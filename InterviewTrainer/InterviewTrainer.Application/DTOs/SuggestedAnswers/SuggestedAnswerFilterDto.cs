@@ -3,5 +3,5 @@
 public record SuggestedAnswerFilterDto(
     int ItemsPerPage,
     int Page,
-    Guid? SuggestedQuestionId = null,
+    Guid? QuestionId = null,
     string? Answer = null);

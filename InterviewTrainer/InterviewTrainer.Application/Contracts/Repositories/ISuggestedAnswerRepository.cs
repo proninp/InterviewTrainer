@@ -5,8 +5,7 @@ namespace InterviewTrainer.Application.Contracts.Repositories;
 
 public interface ISuggestedAnswerRepository : IRepository<SuggestedAnswer>
 {
-    Task<IEnumerable<SuggestedAnswer>> GetBySuggestedQuestionIdAsync(
-        Guid suggestedQuestionId, CancellationToken cancellationToken);
+    Task<IEnumerable<SuggestedAnswer>> GetByQuestionIdAsync(Guid questionId, CancellationToken cancellationToken);
 
     Task<IEnumerable<SuggestedAnswer>> GetPagedAsync(
         SuggestedAnswerFilterDto filterDto, CancellationToken cancellationToken);

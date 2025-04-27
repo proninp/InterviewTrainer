@@ -1,3 +1,6 @@
-﻿namespace InterviewTrainer.Application.DTOs.Questions;
+﻿using InterviewTrainer.Domain.Enums;
 
-public record CreateQuestionDto(Guid TopicId, Guid DifficultyId, string Text, string Answer);
+namespace InterviewTrainer.Application.DTOs.Questions;
+
+public record CreateQuestionDto(
+    Guid TopicId, Difficulty Difficulty, QuestionStatus Status, string Text, string Answer);
