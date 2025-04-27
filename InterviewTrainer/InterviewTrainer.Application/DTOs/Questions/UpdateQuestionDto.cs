@@ -3,7 +3,7 @@
 namespace InterviewTrainer.Application.DTOs.Questions;
 
 public record UpdateQuestionDto(
-    Guid QuestionId,
+    Guid Id,
     Guid? TopicId = null,
     Difficulty? Difficulty = null,
     QuestionStatus? Status = null,

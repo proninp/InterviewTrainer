@@ -8,7 +8,7 @@ public interface IQuestionService
     
     Task<IEnumerable<QuestionDto>> GetByTagsAsync(IEnumerable<string> tags, CancellationToken cancellationToken);
     
-    Task<int> CreateAsync(CreateQuestionDto createQuestionDto, CancellationToken cancellationToken);
+    Task<QuestionDto> CreateAsync(CreateQuestionDto createQuestionDto, CancellationToken cancellationToken);
     
     Task UpdateAsync(UpdateQuestionDto updateQuestionDto, CancellationToken cancellationToken);
     
