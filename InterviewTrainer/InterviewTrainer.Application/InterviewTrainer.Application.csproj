@@ -10,8 +10,4 @@
       <ProjectReference Include="..\InterviewTrainer.Domain\InterviewTrainer.Domain.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="DTOs\Roles\" />
-    </ItemGroup>
-
 </Project>
