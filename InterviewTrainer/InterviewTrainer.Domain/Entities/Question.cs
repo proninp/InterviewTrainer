@@ -1,21 +1,23 @@
 ﻿using InterviewTrainer.Domain.Abstractions;
+using InterviewTrainer.Domain.Enums;
 
 namespace InterviewTrainer.Domain.Entities;
 
-public class Question(Guid topicId, Guid difficultyId, string text, string answer, bool archive = false)
+public class Question(
+    Guid topicId, Difficulty difficulty, QuestionStatus status, string text, string answer, bool archived = false)
     : IdentityModel
 {
     public Guid TopicId { get; set; } = topicId;
 
     public Topic Topic { get; set; } = null!;
 
-    public Guid DifficultyId { get; set; } = difficultyId;
+    public Difficulty Difficulty { get; set; } = difficulty;
 
-    public Difficulty Difficulty { get; set; } = null!;
+    public QuestionStatus Status { get; set; } = status;
 
     public string Text { get; set; } = text;
 
     public string Answer { get; set; } = answer;
 
-    public bool Archive { get; set; } = archive;
+    public bool Archived { get; set; } = archived;
 }
