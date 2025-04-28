@@ -4,7 +4,7 @@ namespace InterviewTrainer.Application.Contracts.Services;
 
 public interface IUserService
 {
-    Task<UserDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<UserDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     
     Task<IEnumerable<UserDto>> GetPagedAsync(UserFilterDto userFilterDto, CancellationToken cancellationToken);
     

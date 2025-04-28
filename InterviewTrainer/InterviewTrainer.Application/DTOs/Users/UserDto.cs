@@ -1,3 +1,15 @@
 ﻿namespace InterviewTrainer.Application.DTOs.Users;
 
-public record UserDto(Guid Id, long TelegramId, string? UserName, string? Email, List<Guid> RoleIds);
+public record UserDto
+{
+    public Guid Id { get; init; }
+    
+    public long TelegramId { get; init; }
+    
+    public string? UserName { get; init; }
+    
+    public string? Email { get; init; }
+    
+    public List<Guid> RoleIds { get; init; } = [];
+}
+    
