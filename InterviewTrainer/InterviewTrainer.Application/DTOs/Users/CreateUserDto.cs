@@ -1,19 +1,6 @@
 ﻿namespace InterviewTrainer.Application.DTOs.Users;
 
-public record CreateUserDto
+public record CreateUserDto(long TelegramId, string? UserName = null, string? Email = null)
 {
-    public long TelegramId { get; init; }
-    
-    public string? UserName { get; init; }
-    
-    public string? Email {get; init; }
-    
     public List<Guid> RoleIds { get; init; } = [];
-
-    public CreateUserDto(long telegramId, string? userName = null, string? email = null)
-    {
-        TelegramId = telegramId;
-        UserName = userName;
-        Email = email;
-    }
 }

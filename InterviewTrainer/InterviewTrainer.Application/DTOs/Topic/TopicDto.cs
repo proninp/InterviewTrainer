@@ -1,19 +1,6 @@
 ﻿namespace InterviewTrainer.Application.DTOs.Topic;
 
-public record TopicDto
+public record TopicDto(Guid Id, string Name, bool Archived = false)
 {
-    public Guid Id { get; init; }
-    
-    public string Name { get; init; }
-    
-    public bool Archived { get; init; }
-
     public List<Guid> TechnologyIds { get; init; } = [];
-
-    public TopicDto(Guid id, string name, bool archived)
-    {
-        Id = id;
-        Name = name;
-        Archived = archived;
-    }
 }
