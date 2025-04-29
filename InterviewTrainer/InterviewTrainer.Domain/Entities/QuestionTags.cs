@@ -2,11 +2,13 @@
 
 namespace InterviewTrainer.Domain.Entities;
 
-public class QuestionTag(Guid questionId, string tag) : IdentityModel
+public class QuestionTags(Guid questionId, Guid tagId)
 {
     public Guid QuestionId { get; set; } = questionId;
 
     public Question Question { get; set; } = null!;
 
-    public string Tag { get; set; } = tag;
+    public Guid TagId { get; set; } = tagId;
+    
+    public Tag Tag { get; set; } = null!;
 }

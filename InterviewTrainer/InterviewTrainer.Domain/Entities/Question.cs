@@ -17,7 +17,9 @@ public class Question(
 
     public string Text { get; set; } = text;
 
-    public string Answer { get; set; } = answer;
+    public string? Answer { get; set; } = answer;
 
     public bool Archived { get; set; } = archived;
+    
+    public ICollection<QuestionTags> Tags { get; set; } = new List<QuestionTags>();
 }
