@@ -3,4 +3,13 @@
 namespace InterviewTrainer.Application.DTOs.Questions;
 
 public record QuestionDto(
-    Guid Id, Guid TopicId, Difficulty Difficulty, QuestionStatus Status, string Text, string Answer, bool Archived);
+    Guid Id,
+    Guid TopicId,
+    Difficulty Difficulty,
+    QuestionStatus Status,
+    string Text,
+    string? Answer,
+    bool Archived = false)
+{
+    public List<Guid> TagIds { get; init; } = [];
+}
