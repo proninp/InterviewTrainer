@@ -7,7 +7,7 @@ public interface ITopicService
 {
     Task<TopicDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     
-    Task<IEnumerable<TopicDto>> GetPagedAsync(
+    Task<List<TopicDto>> GetPagedAsync(
         TopicFilterDto topicFilterDto, CancellationToken cancellationToken);
     
     Task<TopicDto> CreateAsync(CreateTopicDto createTopicDto, CancellationToken cancellationToken);

@@ -9,9 +9,9 @@ public interface IRepository<T>
     
     Task<T?> GetAsync(Guid id, CancellationToken cancellationToken);
     
-    Task<T> AddAsync(T entity);
+    Task<T> AddAsync(T entity, CancellationToken cancellationToken);
     
-    Task AddRangeAsync(ICollection<T> entities);
+    Task AddRangeAsync(ICollection<T> entities, CancellationToken cancellationToken);
     
     void Update(T entity);
     

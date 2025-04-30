@@ -6,7 +6,7 @@ public interface IUserService
 {
     Task<UserDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     
-    Task<IEnumerable<UserDto>> GetPagedAsync(UserFilterDto userFilterDto, CancellationToken cancellationToken);
+    Task<List<UserDto>> GetPagedAsync(UserFilterDto userFilterDto, CancellationToken cancellationToken);
     
     Task<bool> CheckRoleExistsAsync(Guid userId, Guid roleId, CancellationToken cancellationToken);
     

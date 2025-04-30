@@ -6,7 +6,7 @@ public interface ISuggestedAnswerService
 {
     Task<SuggestedAnswerDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     
-    Task<IEnumerable<SuggestedAnswerDto>> GetPagedAsync(
+    Task<List<SuggestedAnswerDto>> GetPagedAsync(
         SuggestedAnswerFilterDto suggestedAnswerFilterDto, CancellationToken cancellationToken);
     
     Task<SuggestedAnswerDto> CreateAsync(CreateSuggestedAnswerDto createSuggestedAnswerDto, CancellationToken cancellationToken);
