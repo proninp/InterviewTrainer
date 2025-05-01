@@ -4,7 +4,7 @@ namespace InterviewTrainer.Application.Contracts.Services;
 
 public interface IRoleService
 {
-    Task<RoleDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<RoleDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     
     Task<bool?> IsActiveRoleAsync(Guid id, CancellationToken cancellationToken);
     

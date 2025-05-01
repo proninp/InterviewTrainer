@@ -1,8 +1,6 @@
 ﻿using InterviewTrainer.Application.Contracts.Repositories;
 using InterviewTrainer.Application.Contracts.Services;
 using InterviewTrainer.Application.DTOs.Users;
-using InterviewTrainer.Application.Exceptions;
-using InterviewTrainer.Domain.Entities;
 
 namespace InterviewTrainer.Application.Implementations.Services;
 
@@ -11,9 +9,15 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public async Task<UserDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork)
     {
-        var user = await GetUserAsync(id, cancellationToken);
+        _userRepository = userRepository;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<UserDto> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var user = await _userRepository.GetOrThrowAsync(id, cancellationToken);
         return user.ToDto();
     }
 
@@ -21,12 +25,6 @@ public class UserService : IUserService
     {
         var users = await _userRepository.GetPagedAsync(userFilterDto, cancellationToken);
         return users.Select(user => user.ToDto()).ToList();
-    }
-
-    public async Task<bool> CheckRoleExistsAsync(Guid userId, Guid roleId, CancellationToken cancellationToken)
-    {
-        var user = await GetUserAsync(userId, cancellationToken);
-        return user.UserRoles.Any(ur => ur.RoleId == roleId);
     }
 
     public async Task<UserDto> CreateAsync(CreateUserDto createUserDto, CancellationToken cancellationToken)
@@ -38,7 +36,7 @@ public class UserService : IUserService
 
     public async Task UpdateAsync(UpdateUserDto updateUserDto, CancellationToken cancellationToken)
     {
-        var user = await GetUserAsync(updateUserDto.Id, cancellationToken);
+        var user = await _userRepository.GetOrThrowAsync(updateUserDto.Id, cancellationToken);
 
         var isNeedUpdate = false;
 
@@ -67,26 +65,13 @@ public class UserService : IUserService
         }
     }
 
-    public Task DeleteAsync(Guid id, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<UserDto?> AddRoleAsync(Guid userId, Guid roleId, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<UserDto?> RemoveRoleAsync(Guid userId, Guid roleId, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
-    private async Task<User> GetUserAsync(Guid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetAsync(id, cancellationToken);
         if (user is null)
-            throw new EntityNotFoundException(nameof(User), id);
-        return user;
+            return;
+        
+        _userRepository.Delete(user);
+        await _unitOfWork.CommitAsync();
     }
 }

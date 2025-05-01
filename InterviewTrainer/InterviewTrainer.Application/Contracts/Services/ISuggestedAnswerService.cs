@@ -4,7 +4,7 @@ namespace InterviewTrainer.Application.Contracts.Services;
 
 public interface ISuggestedAnswerService
 {
-    Task<SuggestedAnswerDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<SuggestedAnswerDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     
     Task<List<SuggestedAnswerDto>> GetPagedAsync(
         SuggestedAnswerFilterDto suggestedAnswerFilterDto, CancellationToken cancellationToken);

@@ -4,7 +4,7 @@ namespace InterviewTrainer.Application.Contracts.Services;
 
 public interface ITechnologyService
 {
-    Task<TechnologyDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<TechnologyDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     
     Task<List<TechnologyDto>> GetPagedAsync(
         TechnologyFilterDto technologyFilterDto, CancellationToken cancellationToken);
