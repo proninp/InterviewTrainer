@@ -4,12 +4,12 @@ namespace InterviewTrainer.Application.Contracts.Services;
 
 public interface IQuestionService
 {
-    Task<QuestionDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<QuestionDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     
-    Task<IEnumerable<QuestionDto>> GetPagedAsync(
+    Task<List<QuestionDto>> GetPagedAsync(
         QuestionFilterDto questionFilterDto, CancellationToken cancellationToken);
     
-    Task<IEnumerable<QuestionDto>> GetByTagsAsync(IEnumerable<string> tags, CancellationToken cancellationToken);
+    Task<List<QuestionDto>> GetByTagsAsync(IEnumerable<string> tags, CancellationToken cancellationToken);
     
     Task<QuestionDto> CreateAsync(CreateQuestionDto createQuestionDto, CancellationToken cancellationToken);
     

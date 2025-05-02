@@ -5,11 +5,11 @@ namespace InterviewTrainer.Application.Contracts.Services;
 
 public interface ITagService
 {
-    Task<TagDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<TagDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     
-    Task<IEnumerable<TagDto>> GetPagedAsync(TagFilterDto tagFilterDto, CancellationToken cancellationToken);
+    Task<List<TagDto>> GetPagedAsync(TagFilterDto tagFilterDto, CancellationToken cancellationToken);
     
-    Task<IEnumerable<QuestionDto>> GetQuestionsByTagIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<List<QuestionDto>> GetQuestionsByTagIdAsync(Guid id, CancellationToken cancellationToken);
     
     Task<TagDto> CreateAsync(CreateTagDto createTagDto, CancellationToken cancellationToken);
     

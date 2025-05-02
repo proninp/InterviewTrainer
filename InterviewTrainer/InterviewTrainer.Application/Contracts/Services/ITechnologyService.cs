@@ -4,9 +4,9 @@ namespace InterviewTrainer.Application.Contracts.Services;
 
 public interface ITechnologyService
 {
-    Task<TechnologyDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<TechnologyDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
     
-    Task<IEnumerable<TechnologyDto>> GetPagedAsync(
+    Task<List<TechnologyDto>> GetPagedAsync(
         TechnologyFilterDto technologyFilterDto, CancellationToken cancellationToken);
     
     Task<TechnologyDto> CreateAsync(CreateTechnologyDto createTechnologyDto, CancellationToken cancellationToken);
