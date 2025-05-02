@@ -10,5 +10,5 @@ public record CreateUserDto(long TelegramId, string? UserName = null, string? Em
 public static class CreateUserDtoExtension
 {
     public static User ToUser(this CreateUserDto createUserDto) =>
-        new User(createUserDto.TelegramId, createUserDto.UserName, createUserDto.Email);
+        new(createUserDto.TelegramId, createUserDto.UserName, createUserDto.Email);
 }

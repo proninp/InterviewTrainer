@@ -37,7 +37,7 @@ public class UserRoleService : IUserRoleService
         
         user.UserRoles.Add(userRole);
         _userRepository.Update(user);
-        await _unitOfWork.CommitAsync();
+        await _unitOfWork.CommitAsync(cancellationToken);
         
         return user.ToDto();
     }
@@ -48,11 +48,13 @@ public class UserRoleService : IUserRoleService
 
         var userRole = user.UserRoles.FirstOrDefault(ur => ur.RoleId == roleId);
         if (userRole is null)
+        {
             return user.ToDto();
+        }
 
         user.UserRoles.Remove(userRole);
         _userRepository.Update(user);
-        await _unitOfWork.CommitAsync();
+        await _unitOfWork.CommitAsync(cancellationToken);
         
         return user.ToDto();
     }

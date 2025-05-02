@@ -61,7 +61,7 @@ public class UserService : IUserService
         if (isNeedUpdate)
         {
             _userRepository.Update(user);
-            await _unitOfWork.CommitAsync();
+            await _unitOfWork.CommitAsync(cancellationToken);
         }
     }
 
@@ -69,9 +69,11 @@ public class UserService : IUserService
     {
         var user = await _userRepository.GetAsync(id, cancellationToken);
         if (user is null)
+        {
             return;
+        }
         
         _userRepository.Delete(user);
-        await _unitOfWork.CommitAsync();
+        await _unitOfWork.CommitAsync(cancellationToken);
     }
 }
