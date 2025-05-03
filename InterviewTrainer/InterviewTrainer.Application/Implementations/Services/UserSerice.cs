@@ -1,6 +1,7 @@
 ﻿using InterviewTrainer.Application.Contracts.Repositories;
 using InterviewTrainer.Application.Contracts.Services;
 using InterviewTrainer.Application.DTOs.Users;
+using InterviewTrainer.Application.Exceptions;
 
 namespace InterviewTrainer.Application.Implementations.Services;
 
@@ -29,6 +30,7 @@ public class UserService : IUserService
 
     public async Task<UserDto> CreateAsync(CreateUserDto createUserDto, CancellationToken cancellationToken)
     {
+        await CheckUserIdentityProperties(null, createUserDto.TelegramId, createUserDto.Email, cancellationToken);
         var user = createUserDto.ToUser();
         var userDto = (await _userRepository.AddAsync(user, cancellationToken)).ToDto();
         return userDto;
@@ -36,6 +38,8 @@ public class UserService : IUserService
 
     public async Task UpdateAsync(UpdateUserDto updateUserDto, CancellationToken cancellationToken)
     {
+        await CheckUserIdentityProperties(updateUserDto.Id, updateUserDto.TelegramId, updateUserDto.Email, cancellationToken);
+        
         var user = await _userRepository.GetOrThrowAsync(updateUserDto.Id, cancellationToken);
 
         var isNeedUpdate = false;
@@ -68,12 +72,37 @@ public class UserService : IUserService
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetAsync(id, cancellationToken);
-        if (user is null)
+        if (user is not null)
         {
-            return;
+            _userRepository.Delete(user);
+            await _unitOfWork.CommitAsync(cancellationToken);
         }
+    }
+
+    private async Task CheckUserIdentityProperties(Guid? excludeUserId, long? telegramId, string? email, CancellationToken cancellationToken)
+    {
+        bool isUserAlreadyExists;
         
-        _userRepository.Delete(user);
-        await _unitOfWork.CommitAsync(cancellationToken);
+        if (telegramId is not null)
+        {
+            isUserAlreadyExists =
+                await _userRepository.ExistsByTelegramIdAsync(telegramId.Value, excludeUserId, cancellationToken);
+            if (isUserAlreadyExists)
+            {
+                throw new BusinessRuleViolationException(
+                    $"User with Telegram ID '{telegramId}' already exists");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            isUserAlreadyExists =
+                await _userRepository.ExistsByEmailAsync(email, excludeUserId, cancellationToken);
+            if (isUserAlreadyExists)
+            {
+                throw new BusinessRuleViolationException(
+                    $"A user account with the specified Email '{email}' already exists");
+            }
+        }
     }
 }

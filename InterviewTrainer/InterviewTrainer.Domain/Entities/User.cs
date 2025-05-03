@@ -2,10 +2,10 @@
 
 namespace InterviewTrainer.Domain.Entities;
 
-public class User(long telegramId, string? userName = null, string? email = null)
+public class User(long? telegramId, string? userName = null, string? email = null)
     : IdentityModel
 {
-    public long TelegramId { get; set; } = telegramId;
+    public long? TelegramId { get; set; } = telegramId;
 
     public string? UserName { get; set; } = userName;
 
