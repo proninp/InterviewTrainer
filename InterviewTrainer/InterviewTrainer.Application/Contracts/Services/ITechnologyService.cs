@@ -14,8 +14,4 @@ public interface ITechnologyService
     Task UpdateAsync(UpdateTechnologyDto updateTechnologyDto, CancellationToken cancellationToken);
     
     Task DeleteAsync(Guid id, CancellationToken cancellationToken);
-    
-    Task<TechnologyDto?> AddTopicAsync(Guid technologyId, Guid topicId, CancellationToken cancellationToken);
-    
-    Task<TechnologyDto?> RemoveTopicAsync(Guid technologyId, Guid topicId, CancellationToken cancellationToken);
 }

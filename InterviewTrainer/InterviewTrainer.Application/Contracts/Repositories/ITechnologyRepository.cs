@@ -5,5 +5,7 @@ namespace InterviewTrainer.Application.Contracts.Repositories;
 
 public interface ITechnologyRepository : IRepository<Technology>
 {
-    Task<IEnumerable<Topic>> GetPagedAsync(TechnologyFilterDto filterDto, CancellationToken cancellationToken);
+    Task<bool> NameExistsAsync(string name, CancellationToken cancellationToken);
+    
+    Task<IEnumerable<Technology>> GetPagedAsync(TechnologyFilterDto filterDto, CancellationToken cancellationToken);
 }

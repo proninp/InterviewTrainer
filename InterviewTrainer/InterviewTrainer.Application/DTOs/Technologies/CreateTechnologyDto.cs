@@ -1,6 +1,11 @@
-﻿namespace InterviewTrainer.Application.DTOs.Technologies;
+﻿using InterviewTrainer.Domain.Entities;
 
-public record CreateTechnologyDto(string Name, bool Archived = false)
+namespace InterviewTrainer.Application.DTOs.Technologies;
+
+public record CreateTechnologyDto(string Name, bool Archived = false);
+
+public static class CreateTechnologyDtoExtension
 {
-    public List<Guid> TopicIds { get; init; } = [];
+    public static Technology ToTechnology(this CreateTechnologyDto createTechnologyDto) =>
+        new(createTechnologyDto.Name, createTechnologyDto.Archived);
 }
