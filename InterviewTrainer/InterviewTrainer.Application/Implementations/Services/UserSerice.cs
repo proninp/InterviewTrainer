@@ -30,15 +30,14 @@ public class UserService : IUserService
 
     public async Task<UserDto> CreateAsync(CreateUserDto createUserDto, CancellationToken cancellationToken)
     {
-        await CheckUserIdentityProperties(null, createUserDto.TelegramId, createUserDto.Email, cancellationToken);
-        var user = createUserDto.ToUser();
-        var userDto = (await _userRepository.AddAsync(user, cancellationToken)).ToDto();
-        return userDto;
+        await CheckUserIdentityPropertiesAsync(null, createUserDto.TelegramId, createUserDto.Email, cancellationToken);
+        var user = await _userRepository.AddAsync(createUserDto.ToUser(), cancellationToken);
+        return user.ToDto();
     }
 
     public async Task UpdateAsync(UpdateUserDto updateUserDto, CancellationToken cancellationToken)
     {
-        await CheckUserIdentityProperties(updateUserDto.Id, updateUserDto.TelegramId, updateUserDto.Email, cancellationToken);
+        await CheckUserIdentityPropertiesAsync(updateUserDto.Id, updateUserDto.TelegramId, updateUserDto.Email, cancellationToken);
         
         var user = await _userRepository.GetOrThrowAsync(updateUserDto.Id, cancellationToken);
 
@@ -79,7 +78,7 @@ public class UserService : IUserService
         }
     }
 
-    private async Task CheckUserIdentityProperties(Guid? excludeUserId, long? telegramId, string? email, CancellationToken cancellationToken)
+    private async Task CheckUserIdentityPropertiesAsync(Guid? excludeUserId, long? telegramId, string? email, CancellationToken cancellationToken)
     {
         bool isUserAlreadyExists;
         

@@ -29,7 +29,9 @@ public class UserRoleService : IUserRoleService
         var user = await _userRepository.GetOrThrowAsync(userId, cancellationToken);
 
         if (user.UserRoles.Any(ur => ur.RoleId == roleId))
+        {
             return user.ToDto();
+        }
 
         _ = await _roleRepository.GetOrThrowAsync(roleId, cancellationToken);
         
