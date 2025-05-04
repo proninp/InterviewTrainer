@@ -32,37 +32,40 @@ public class TechnologyService : ITechnologyService
     public async Task<TechnologyDto> CreateAsync(CreateTechnologyDto createTechnologyDto,
         CancellationToken cancellationToken)
     {
-        await CheckTechnologyNameAsync(createTechnologyDto.Name, cancellationToken);
+        await CheckTechnologyIdentityPropertiesAsync(createTechnologyDto.Name, null, cancellationToken);
 
         var technology = await _technologyRepository.AddAsync(createTechnologyDto.ToTechnology(), cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
+
         return technology.ToDto();
     }
 
     public async Task UpdateAsync(UpdateTechnologyDto updateTechnologyDto, CancellationToken cancellationToken)
     {
+        await CheckTechnologyIdentityPropertiesAsync(updateTechnologyDto.Name, updateTechnologyDto.Id,
+            cancellationToken);
+
         var technology = await _technologyRepository.GetOrThrowAsync(updateTechnologyDto.Id, cancellationToken);
 
         var isNeedToUpdate = false;
-        
+
         if (updateTechnologyDto.Name is not null &&
             !string.Equals(technology.Name, updateTechnologyDto.Name, StringComparison.OrdinalIgnoreCase))
         {
-            await CheckTechnologyNameAsync(updateTechnologyDto.Name, cancellationToken);
             technology.Name = updateTechnologyDto.Name;
             isNeedToUpdate = true;
         }
 
-        if (technology.Archived != updateTechnologyDto.Archived)
+        if (updateTechnologyDto.Archived is not null && technology.Archived != updateTechnologyDto.Archived.Value)
         {
-            technology.Archived = updateTechnologyDto.Archived;
+            technology.Archived = updateTechnologyDto.Archived.Value;
             isNeedToUpdate = true;
         }
 
         if (isNeedToUpdate)
         {
-           _technologyRepository.Update(technology);
-           await _unitOfWork.CommitAsync(cancellationToken);
+            _technologyRepository.Update(technology);
+            await _unitOfWork.CommitAsync(cancellationToken);
         }
     }
 
@@ -76,13 +79,16 @@ public class TechnologyService : ITechnologyService
         }
     }
 
-    private async Task CheckTechnologyNameAsync(string name, CancellationToken cancellationToken)
+    private async Task CheckTechnologyIdentityPropertiesAsync(string? name, Guid? excludeId,
+        CancellationToken cancellationToken)
     {
-        var isNameExists = await _technologyRepository.NameExistsAsync(name, cancellationToken);
-        if (isNameExists)
+        if (name is not null)
         {
-            throw new BusinessRuleViolationException(
-                $"Technology with name '{name}' already exists.");
+            var isNameExists = await _technologyRepository.NameExistsAsync(name, excludeId, cancellationToken);
+            if (isNameExists)
+            {
+                throw new BusinessRuleViolationException($"Technology with name '{name}' already exists.");
+            }
         }
     }
 }

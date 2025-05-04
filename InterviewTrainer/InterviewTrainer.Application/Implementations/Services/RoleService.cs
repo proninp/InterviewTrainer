@@ -35,15 +35,9 @@ public class RoleService : IRoleService
 
     public async Task<RoleDto> CreateAsync(CreateRoleDto createRoleDto, CancellationToken cancellationToken)
     {
-        var filterDto = new RoleFilterDto(0, 0, Name: createRoleDto.Name);
-        var roles = await _roleRepository.GetPagedAsync(filterDto, cancellationToken);
-        if (roles.Any())
-        {
-            throw new EntityAlreadyExistsException("Role with the same name already exists.");
-        }
-
-        var role = createRoleDto.ToRole();
-        role = await _roleRepository.AddAsync(role, cancellationToken);
+        await CheckRoleIdentityPropertiesAsync(createRoleDto.Name, null, cancellationToken);
+        
+        var role = await _roleRepository.AddAsync(createRoleDto.ToRole(), cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
 
         return role.ToDto();
@@ -55,6 +49,8 @@ public class RoleService : IRoleService
         {
             throw new BusinessRuleViolationException("Role name cannot be empty.");
         }
+        
+        await CheckRoleIdentityPropertiesAsync(updateRoleDto.Name, updateRoleDto.Id, cancellationToken);
 
         var isNeedUpdate = false;
 
@@ -63,18 +59,11 @@ public class RoleService : IRoleService
         if (updateRoleDto.Name is not null &&
             !string.Equals(role.Name, updateRoleDto.Name, StringComparison.OrdinalIgnoreCase))
         {
-            var isNameAlreadyExists =
-                await _roleRepository.ExistsByNameAsync(updateRoleDto.Name, null, cancellationToken);
-            if (isNameAlreadyExists)
-            {
-                throw new BusinessRuleViolationException($"Role with name '{updateRoleDto.Name}' already exists.");
-            }
-
             role.Name = updateRoleDto.Name;
             isNeedUpdate = true;
         }
 
-        if (!string.Equals(role.Name, updateRoleDto.Name, StringComparison.Ordinal))
+        if (!string.Equals(role.Description, updateRoleDto.Description, StringComparison.Ordinal))
         {
             role.Description = updateRoleDto.Description;
             isNeedUpdate = true;
@@ -97,5 +86,17 @@ public class RoleService : IRoleService
 
         _roleRepository.Delete(role);
         await _unitOfWork.CommitAsync(cancellationToken);
+    }
+
+    private async Task CheckRoleIdentityPropertiesAsync(string? name, Guid? excludeId, CancellationToken cancellationToken)
+    {
+        if (name is not null)
+        {
+            var isNameAlreadyExists = await _roleRepository.ExistsByNameAsync(name, excludeId, cancellationToken);
+            if (isNameAlreadyExists)
+            {
+                throw new BusinessRuleViolationException($"Role with name '{name}' already exists.");
+            }
+        }
     }
 }

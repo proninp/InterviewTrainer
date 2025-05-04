@@ -31,14 +31,18 @@ public class UserService : IUserService
     public async Task<UserDto> CreateAsync(CreateUserDto createUserDto, CancellationToken cancellationToken)
     {
         await CheckUserIdentityPropertiesAsync(null, createUserDto.TelegramId, createUserDto.Email, cancellationToken);
+
         var user = await _userRepository.AddAsync(createUserDto.ToUser(), cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
+
         return user.ToDto();
     }
 
     public async Task UpdateAsync(UpdateUserDto updateUserDto, CancellationToken cancellationToken)
     {
-        await CheckUserIdentityPropertiesAsync(updateUserDto.Id, updateUserDto.TelegramId, updateUserDto.Email, cancellationToken);
-        
+        await CheckUserIdentityPropertiesAsync(updateUserDto.Id, updateUserDto.TelegramId, updateUserDto.Email,
+            cancellationToken);
+
         var user = await _userRepository.GetOrThrowAsync(updateUserDto.Id, cancellationToken);
 
         var isNeedUpdate = false;
@@ -49,13 +53,15 @@ public class UserService : IUserService
             isNeedUpdate = true;
         }
 
-        if (updateUserDto.UserName is not null && updateUserDto.UserName != user.UserName)
+        if (updateUserDto.UserName is not null &&
+            !string.Equals(updateUserDto.UserName, user.UserName, StringComparison.OrdinalIgnoreCase))
         {
             user.UserName = updateUserDto.UserName;
             isNeedUpdate = true;
         }
 
-        if (updateUserDto.Email is not null && updateUserDto.Email != user.Email)
+        if (updateUserDto.Email is not null &&
+            !string.Equals(updateUserDto.Email, user.Email, StringComparison.OrdinalIgnoreCase))
         {
             user.Email = updateUserDto.Email;
             isNeedUpdate = true;
@@ -78,10 +84,11 @@ public class UserService : IUserService
         }
     }
 
-    private async Task CheckUserIdentityPropertiesAsync(Guid? excludeUserId, long? telegramId, string? email, CancellationToken cancellationToken)
+    private async Task CheckUserIdentityPropertiesAsync(Guid? excludeUserId, long? telegramId, string? email,
+        CancellationToken cancellationToken)
     {
         bool isUserAlreadyExists;
-        
+
         if (telegramId is not null)
         {
             isUserAlreadyExists =
