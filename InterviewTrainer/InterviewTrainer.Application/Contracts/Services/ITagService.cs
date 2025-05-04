@@ -9,8 +9,6 @@ public interface ITagService
     
     Task<List<TagDto>> GetPagedAsync(TagFilterDto tagFilterDto, CancellationToken cancellationToken);
     
-    Task<List<QuestionDto>> GetQuestionsByTagIdAsync(Guid id, CancellationToken cancellationToken);
-    
     Task<TagDto> CreateAsync(CreateTagDto createTagDto, CancellationToken cancellationToken);
     
     Task UpdateAsync(UpdateTagDto updateTagDto, CancellationToken cancellationToken);

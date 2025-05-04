@@ -2,7 +2,7 @@
 
 namespace InterviewTrainer.Domain.Entities;
 
-public class QuestionTags(Guid questionId, Guid tagId)
+public class QuestionTag(Guid questionId, Guid tagId)
 {
     public Guid QuestionId { get; set; } = questionId;
 

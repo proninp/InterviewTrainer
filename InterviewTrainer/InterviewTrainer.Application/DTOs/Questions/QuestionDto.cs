@@ -1,4 +1,5 @@
-﻿using InterviewTrainer.Domain.Enums;
+﻿using InterviewTrainer.Domain.Entities;
+using InterviewTrainer.Domain.Enums;
 
 namespace InterviewTrainer.Application.DTOs.Questions;
 
@@ -12,4 +13,17 @@ public record QuestionDto(
     bool Archived = false)
 {
     public List<Guid> TagIds { get; init; } = [];
+}
+
+public static class QuestionDtoExtension
+{
+    public static QuestionDto ToDto(this Question question)
+    {
+        return new QuestionDto(question.Id, question.TopicId, question.Difficulty, question.Status, question.Text,
+            question.Answer,
+            question.Archived)
+        {
+            TagIds = question.QuestionTags.Select(t => t.TagId).ToList()
+        };
+    }
 }

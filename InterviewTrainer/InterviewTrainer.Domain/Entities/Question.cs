@@ -21,5 +21,5 @@ public class Question(
 
     public bool Archived { get; set; } = archived;
     
-    public ICollection<QuestionTags> Tags { get; set; } = new List<QuestionTags>();
+    public ICollection<QuestionTag> QuestionTags { get; set; } = new List<QuestionTag>();
 }
