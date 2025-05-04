@@ -24,7 +24,13 @@ public class UserRoleService : IUserRoleService
         return user.UserRoles.Any(ur => ur.RoleId == roleId);
     }
 
-    public async Task<UserDto?> AddUserRoleAsync(Guid userId, Guid roleId, CancellationToken cancellationToken)
+    public async Task<List<UserDto>> GetUsersByRollNameAsync(string roleName, CancellationToken cancellationToken)
+    {
+        var users = await _userRepository.GetUsersByRoleNameAsync(roleName, cancellationToken);
+        return users.Select(u => u.ToDto()).ToList();
+    }
+
+    public async Task<UserDto> AddUserRoleAsync(Guid userId, Guid roleId, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetOrThrowAsync(userId, cancellationToken);
 
@@ -44,7 +50,7 @@ public class UserRoleService : IUserRoleService
         return user.ToDto();
     }
 
-    public async Task<UserDto?> RemoveUserRoleAsync(Guid userId, Guid roleId, CancellationToken cancellationToken)
+    public async Task<UserDto> RemoveUserRoleAsync(Guid userId, Guid roleId, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetOrThrowAsync(userId, cancellationToken);
 

@@ -1,6 +1,7 @@
 ﻿using InterviewTrainer.Application.Contracts.Repositories;
 using InterviewTrainer.Application.Contracts.Services;
 using InterviewTrainer.Application.DTOs.Technologies;
+using InterviewTrainer.Application.DTOs.Topics;
 using InterviewTrainer.Domain.Entities;
 
 namespace InterviewTrainer.Application.Implementations.Services;
@@ -19,27 +20,35 @@ public class TopicTechnologyService : ITopicTechnologyService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<TechnologyDto?> AddTopicAsync(Guid technologyId, Guid topicId, CancellationToken cancellationToken)
+    public async Task<List<TopicDto>> GetTopicsByTechnologyNameAsync(string technologyName,
+        CancellationToken cancellationToken)
+    {
+        var topics = await _topicRepository.GetTopicsByTechnologyNameAsync(technologyName, cancellationToken);
+        return topics.Select(t => t.ToDto()).ToList();
+    }
+
+    public async Task<TechnologyDto> AddTopicAsync(Guid technologyId, Guid topicId, CancellationToken cancellationToken)
     {
         var technology = await _technologyRepository.GetOrThrowAsync(technologyId, cancellationToken);
-        
+
         if (technology.TopicTechnologies.Any(tt => tt.TopicId == topicId))
         {
             return technology.ToDto();
         }
-        
+
         _ = await _topicRepository.GetOrThrowAsync(topicId, cancellationToken);
 
         var topicTechnology = new TopicTechnology(technologyId, topicId);
-        
+
         technology.TopicTechnologies.Add(topicTechnology);
         _technologyRepository.Update(technology);
         await _unitOfWork.CommitAsync(cancellationToken);
-        
+
         return technology.ToDto();
     }
 
-    public async Task<TechnologyDto?> RemoveTopicAsync(Guid technologyId, Guid topicId, CancellationToken cancellationToken)
+    public async Task<TechnologyDto> RemoveTopicAsync(Guid technologyId, Guid topicId,
+        CancellationToken cancellationToken)
     {
         var technology = await _technologyRepository.GetOrThrowAsync(technologyId, cancellationToken);
         var topicTechnology = technology.TopicTechnologies.FirstOrDefault(tt => tt.TopicId == topicId);
@@ -48,11 +57,11 @@ public class TopicTechnologyService : ITopicTechnologyService
         {
             return technology.ToDto();
         }
-        
+
         technology.TopicTechnologies.Remove(topicTechnology);
         _technologyRepository.Update(technology);
         await _unitOfWork.CommitAsync(cancellationToken);
-        
+
         return technology.ToDto();
     }
 }

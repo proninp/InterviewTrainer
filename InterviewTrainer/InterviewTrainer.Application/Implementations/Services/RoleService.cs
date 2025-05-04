@@ -35,7 +35,7 @@ public class RoleService : IRoleService
 
     public async Task<RoleDto> CreateAsync(CreateRoleDto createRoleDto, CancellationToken cancellationToken)
     {
-        await CheckRoleIdentityPropertiesAsync(createRoleDto.Name, null, cancellationToken);
+        await CheckRoleIdentityPropertiesAsync(null, createRoleDto.Name, cancellationToken);
         
         var role = await _roleRepository.AddAsync(createRoleDto.ToRole(), cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
@@ -50,7 +50,7 @@ public class RoleService : IRoleService
             throw new BusinessRuleViolationException("Role name cannot be empty.");
         }
         
-        await CheckRoleIdentityPropertiesAsync(updateRoleDto.Name, updateRoleDto.Id, cancellationToken);
+        await CheckRoleIdentityPropertiesAsync(updateRoleDto.Id, updateRoleDto.Name, cancellationToken);
 
         var isNeedUpdate = false;
 
@@ -88,7 +88,7 @@ public class RoleService : IRoleService
         await _unitOfWork.CommitAsync(cancellationToken);
     }
 
-    private async Task CheckRoleIdentityPropertiesAsync(string? name, Guid? excludeId, CancellationToken cancellationToken)
+    private async Task CheckRoleIdentityPropertiesAsync(Guid? excludeId, string? name, CancellationToken cancellationToken)
     {
         if (name is not null)
         {

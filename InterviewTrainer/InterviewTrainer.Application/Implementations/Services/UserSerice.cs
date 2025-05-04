@@ -84,7 +84,7 @@ public class UserService : IUserService
         }
     }
 
-    private async Task CheckUserIdentityPropertiesAsync(Guid? excludeUserId, long? telegramId, string? email,
+    private async Task CheckUserIdentityPropertiesAsync(Guid? excludeId, long? telegramId, string? email,
         CancellationToken cancellationToken)
     {
         bool isUserAlreadyExists;
@@ -92,7 +92,7 @@ public class UserService : IUserService
         if (telegramId is not null)
         {
             isUserAlreadyExists =
-                await _userRepository.ExistsByTelegramIdAsync(telegramId.Value, excludeUserId, cancellationToken);
+                await _userRepository.ExistsByTelegramIdAsync(telegramId.Value, excludeId, cancellationToken);
             if (isUserAlreadyExists)
             {
                 throw new BusinessRuleViolationException(
@@ -103,7 +103,7 @@ public class UserService : IUserService
         if (!string.IsNullOrWhiteSpace(email))
         {
             isUserAlreadyExists =
-                await _userRepository.ExistsByEmailAsync(email, excludeUserId, cancellationToken);
+                await _userRepository.ExistsByEmailAsync(email, excludeId, cancellationToken);
             if (isUserAlreadyExists)
             {
                 throw new BusinessRuleViolationException(

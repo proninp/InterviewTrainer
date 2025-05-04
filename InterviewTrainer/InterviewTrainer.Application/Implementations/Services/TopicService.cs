@@ -30,18 +30,18 @@ public class TopicService : ITopicService
 
     public async Task<TopicDto> CreateAsync(CreateTopicDto createTopicDto, CancellationToken cancellationToken)
     {
-        await CheckTopicIdentityPropertiesAsync(createTopicDto.Name, null, cancellationToken);
-        
+        await CheckTopicIdentityPropertiesAsync(null, createTopicDto.Name, cancellationToken);
+
         var topic = await _topicRepository.AddAsync(createTopicDto.ToTopic(), cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
-        
+
         return topic.ToDto();
     }
 
     public async Task UpdateAsync(UpdateTopicDto updateTopicDto, CancellationToken cancellationToken)
     {
-        await CheckTopicIdentityPropertiesAsync(updateTopicDto.Name, updateTopicDto.Id, cancellationToken);
-        
+        await CheckTopicIdentityPropertiesAsync(updateTopicDto.Id, updateTopicDto.Name, cancellationToken);
+
         var isNeedUpdate = false;
         var topic = await _topicRepository.GetOrThrowAsync(updateTopicDto.Id, cancellationToken);
         if (updateTopicDto.Name is not null &&
@@ -74,7 +74,8 @@ public class TopicService : ITopicService
         }
     }
 
-    private async Task CheckTopicIdentityPropertiesAsync(string? name, Guid? excludeId, CancellationToken cancellationToken)
+    private async Task CheckTopicIdentityPropertiesAsync(Guid? excludeId, string? name,
+        CancellationToken cancellationToken)
     {
         if (name is not null)
         {

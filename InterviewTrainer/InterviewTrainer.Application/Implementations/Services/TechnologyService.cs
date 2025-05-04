@@ -32,7 +32,7 @@ public class TechnologyService : ITechnologyService
     public async Task<TechnologyDto> CreateAsync(CreateTechnologyDto createTechnologyDto,
         CancellationToken cancellationToken)
     {
-        await CheckTechnologyIdentityPropertiesAsync(createTechnologyDto.Name, null, cancellationToken);
+        await CheckTechnologyIdentityPropertiesAsync(null, createTechnologyDto.Name, cancellationToken);
 
         var technology = await _technologyRepository.AddAsync(createTechnologyDto.ToTechnology(), cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
@@ -42,7 +42,7 @@ public class TechnologyService : ITechnologyService
 
     public async Task UpdateAsync(UpdateTechnologyDto updateTechnologyDto, CancellationToken cancellationToken)
     {
-        await CheckTechnologyIdentityPropertiesAsync(updateTechnologyDto.Name, updateTechnologyDto.Id,
+        await CheckTechnologyIdentityPropertiesAsync(updateTechnologyDto.Id, updateTechnologyDto.Name,
             cancellationToken);
 
         var technology = await _technologyRepository.GetOrThrowAsync(updateTechnologyDto.Id, cancellationToken);
@@ -79,7 +79,7 @@ public class TechnologyService : ITechnologyService
         }
     }
 
-    private async Task CheckTechnologyIdentityPropertiesAsync(string? name, Guid? excludeId,
+    private async Task CheckTechnologyIdentityPropertiesAsync(Guid? excludeId, string? name,
         CancellationToken cancellationToken)
     {
         if (name is not null)
