@@ -9,4 +9,5 @@ public record QuestionFilterDto(
     Difficulty? Difficulty = null,
     QuestionStatus? Status = null,
     string? Text = null,
-    bool Archived = false);
+    bool? Archived = null,
+    bool? IsAnswered = null);
