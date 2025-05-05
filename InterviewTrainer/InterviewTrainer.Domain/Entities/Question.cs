@@ -4,7 +4,7 @@ using InterviewTrainer.Domain.Enums;
 namespace InterviewTrainer.Domain.Entities;
 
 public class Question(
-    Guid topicId, Difficulty difficulty, QuestionStatus status, string text, string answer, bool archived = false)
+    Guid topicId, Difficulty difficulty, QuestionStatus status, string text, string? answer, bool archived = false)
     : IdentityModel
 {
     public Guid TopicId { get; set; } = topicId;
@@ -21,5 +21,5 @@ public class Question(
 
     public bool Archived { get; set; } = archived;
     
-    public ICollection<QuestionTags> Tags { get; set; } = new List<QuestionTags>();
+    public ICollection<QuestionTag> QuestionTags { get; set; } = new List<QuestionTag>();
 }

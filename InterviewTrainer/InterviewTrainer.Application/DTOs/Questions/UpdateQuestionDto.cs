@@ -9,4 +9,4 @@ public record UpdateQuestionDto(
     QuestionStatus? Status = null,
     string? Text = null,
     string? Answer = null,
-    bool Archive = false);
+    bool? Archived = null);

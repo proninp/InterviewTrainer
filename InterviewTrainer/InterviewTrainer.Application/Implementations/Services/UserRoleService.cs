@@ -24,12 +24,20 @@ public class UserRoleService : IUserRoleService
         return user.UserRoles.Any(ur => ur.RoleId == roleId);
     }
 
-    public async Task<UserDto?> AddUserRoleAsync(Guid userId, Guid roleId, CancellationToken cancellationToken)
+    public async Task<List<UserDto>> GetUsersByRollNameAsync(string roleName, CancellationToken cancellationToken)
+    {
+        var users = await _userRepository.GetUsersByRoleNameAsync(roleName, cancellationToken);
+        return users.Select(u => u.ToDto()).ToList();
+    }
+
+    public async Task<UserDto> AddUserRoleAsync(Guid userId, Guid roleId, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetOrThrowAsync(userId, cancellationToken);
 
         if (user.UserRoles.Any(ur => ur.RoleId == roleId))
+        {
             return user.ToDto();
+        }
 
         _ = await _roleRepository.GetOrThrowAsync(roleId, cancellationToken);
         
@@ -37,22 +45,24 @@ public class UserRoleService : IUserRoleService
         
         user.UserRoles.Add(userRole);
         _userRepository.Update(user);
-        await _unitOfWork.CommitAsync();
+        await _unitOfWork.CommitAsync(cancellationToken);
         
         return user.ToDto();
     }
 
-    public async Task<UserDto?> RemoveUserRoleAsync(Guid userId, Guid roleId, CancellationToken cancellationToken)
+    public async Task<UserDto> RemoveUserRoleAsync(Guid userId, Guid roleId, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetOrThrowAsync(userId, cancellationToken);
 
         var userRole = user.UserRoles.FirstOrDefault(ur => ur.RoleId == roleId);
         if (userRole is null)
+        {
             return user.ToDto();
+        }
 
         user.UserRoles.Remove(userRole);
         _userRepository.Update(user);
-        await _unitOfWork.CommitAsync();
+        await _unitOfWork.CommitAsync(cancellationToken);
         
         return user.ToDto();
     }

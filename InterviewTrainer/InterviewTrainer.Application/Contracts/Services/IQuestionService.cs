@@ -9,7 +9,8 @@ public interface IQuestionService
     Task<List<QuestionDto>> GetPagedAsync(
         QuestionFilterDto questionFilterDto, CancellationToken cancellationToken);
     
-    Task<List<QuestionDto>> GetByTagsAsync(IEnumerable<string> tags, CancellationToken cancellationToken);
+    Task<QuestionDto> GetRandomAsync(
+        QuestionFilterDto questionFilterDto, CancellationToken cancellationToken);
     
     Task<QuestionDto> CreateAsync(CreateQuestionDto createQuestionDto, CancellationToken cancellationToken);
     

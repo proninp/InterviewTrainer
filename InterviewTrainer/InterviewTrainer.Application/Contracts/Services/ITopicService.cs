@@ -1,5 +1,5 @@
 ﻿using InterviewTrainer.Application.DTOs.Technologies;
-using InterviewTrainer.Application.DTOs.Topic;
+using InterviewTrainer.Application.DTOs.Topics;
 
 namespace InterviewTrainer.Application.Contracts.Services;
 
@@ -15,9 +15,4 @@ public interface ITopicService
     Task UpdateAsync(UpdateTopicDto updateTopicDto, CancellationToken cancellationToken);
     
     Task DeleteAsync(Guid id, CancellationToken cancellationToken);
-    
-    Task<TopicDto?> AddToTechnology(Guid technologyId, Guid topicId, CancellationToken cancellationToken);
-    
-    Task<TechnologyDto?> RemoveFromTechnologyAsync(
-        Guid technologyId, Guid topicId, CancellationToken cancellationToken);
 }

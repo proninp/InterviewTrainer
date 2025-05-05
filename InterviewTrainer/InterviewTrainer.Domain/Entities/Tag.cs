@@ -6,5 +6,5 @@ public class Tag(string name) : IdentityModel
 {
     public string Name { get; set; } = name;
     
-    public ICollection<QuestionTags> Tags { get; set; } = new List<QuestionTags>();
+    public ICollection<QuestionTag> QuestionTags { get; set; } = new List<QuestionTag>();
 }

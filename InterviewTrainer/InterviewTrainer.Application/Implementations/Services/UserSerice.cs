@@ -1,6 +1,7 @@
 ﻿using InterviewTrainer.Application.Contracts.Repositories;
 using InterviewTrainer.Application.Contracts.Services;
 using InterviewTrainer.Application.DTOs.Users;
+using InterviewTrainer.Application.Exceptions;
 
 namespace InterviewTrainer.Application.Implementations.Services;
 
@@ -29,13 +30,19 @@ public class UserService : IUserService
 
     public async Task<UserDto> CreateAsync(CreateUserDto createUserDto, CancellationToken cancellationToken)
     {
-        var user = createUserDto.ToUser();
-        var userDto = (await _userRepository.AddAsync(user, cancellationToken)).ToDto();
-        return userDto;
+        await CheckUserIdentityPropertiesAsync(null, createUserDto.TelegramId, createUserDto.Email, cancellationToken);
+
+        var user = await _userRepository.AddAsync(createUserDto.ToUser(), cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
+
+        return user.ToDto();
     }
 
     public async Task UpdateAsync(UpdateUserDto updateUserDto, CancellationToken cancellationToken)
     {
+        await CheckUserIdentityPropertiesAsync(updateUserDto.Id, updateUserDto.TelegramId, updateUserDto.Email,
+            cancellationToken);
+
         var user = await _userRepository.GetOrThrowAsync(updateUserDto.Id, cancellationToken);
 
         var isNeedUpdate = false;
@@ -46,13 +53,15 @@ public class UserService : IUserService
             isNeedUpdate = true;
         }
 
-        if (updateUserDto.UserName is not null && updateUserDto.UserName != user.UserName)
+        if (updateUserDto.UserName is not null &&
+            !string.Equals(updateUserDto.UserName, user.UserName, StringComparison.OrdinalIgnoreCase))
         {
             user.UserName = updateUserDto.UserName;
             isNeedUpdate = true;
         }
 
-        if (updateUserDto.Email is not null && updateUserDto.Email != user.Email)
+        if (updateUserDto.Email is not null &&
+            !string.Equals(updateUserDto.Email, user.Email, StringComparison.OrdinalIgnoreCase))
         {
             user.Email = updateUserDto.Email;
             isNeedUpdate = true;
@@ -61,17 +70,45 @@ public class UserService : IUserService
         if (isNeedUpdate)
         {
             _userRepository.Update(user);
-            await _unitOfWork.CommitAsync();
+            await _unitOfWork.CommitAsync(cancellationToken);
         }
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetAsync(id, cancellationToken);
-        if (user is null)
-            return;
-        
-        _userRepository.Delete(user);
-        await _unitOfWork.CommitAsync();
+        if (user is not null)
+        {
+            _userRepository.Delete(user);
+            await _unitOfWork.CommitAsync(cancellationToken);
+        }
+    }
+
+    private async Task CheckUserIdentityPropertiesAsync(Guid? excludeId, long? telegramId, string? email,
+        CancellationToken cancellationToken)
+    {
+        bool isUserAlreadyExists;
+
+        if (telegramId is not null)
+        {
+            isUserAlreadyExists =
+                await _userRepository.ExistsByTelegramIdAsync(telegramId.Value, excludeId, cancellationToken);
+            if (isUserAlreadyExists)
+            {
+                throw new BusinessRuleViolationException(
+                    $"User with Telegram ID '{telegramId}' already exists");
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            isUserAlreadyExists =
+                await _userRepository.ExistsByEmailAsync(email, excludeId, cancellationToken);
+            if (isUserAlreadyExists)
+            {
+                throw new BusinessRuleViolationException(
+                    $"A user account with the specified Email '{email}' already exists");
+            }
+        }
     }
 }

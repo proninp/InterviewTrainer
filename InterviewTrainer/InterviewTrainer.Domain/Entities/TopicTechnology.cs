@@ -2,7 +2,7 @@
 
 namespace InterviewTrainer.Domain.Entities;
 
-public class TopicTechnology(Guid technologyId, Guid topicId) : IdentityModel
+public class TopicTechnology(Guid technologyId, Guid topicId)
 {
     public Guid TechnologyId { get; set; } = technologyId;
 
