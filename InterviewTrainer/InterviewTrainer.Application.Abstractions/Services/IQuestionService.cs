@@ -4,7 +4,7 @@ namespace InterviewTrainer.Application.Abstractions.Services;
 
 public interface IQuestionService
 {
-    Task<QuestionDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<QuestionDto> GetByIdAsync(long id, CancellationToken cancellationToken);
     
     Task<List<QuestionDto>> GetPagedAsync(
         QuestionFilterDto questionFilterDto, CancellationToken cancellationToken);
@@ -16,5 +16,5 @@ public interface IQuestionService
     
     Task UpdateAsync(UpdateQuestionDto updateQuestionDto, CancellationToken cancellationToken);
     
-    Task DeleteAsync(Guid id, CancellationToken cancellationToken);
+    Task DeleteAsync(long id, CancellationToken cancellationToken);
 }

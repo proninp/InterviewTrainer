@@ -1,3 +1,3 @@
 ﻿namespace InterviewTrainer.Application.Contracts.Tags;
 
-public record UpdateTagDto(Guid Id, string Name);
+public record UpdateTagDto(long Id, string Name);

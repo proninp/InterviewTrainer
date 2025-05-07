@@ -2,7 +2,7 @@
 
 namespace InterviewTrainer.Application.Contracts.SuggestedAnswers;
 
-public record CreateSuggestedAnswerDto(Guid QuestionId, string Answer);
+public record CreateSuggestedAnswerDto(long QuestionId, string Answer);
 
 public static class CreateSuggestedAnswerDtoExtension
 {

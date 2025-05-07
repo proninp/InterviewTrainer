@@ -2,7 +2,7 @@
 
 namespace InterviewTrainer.Application.Contracts.Roles;
 
-public record RoleDto(Guid Id, string Name, string? Description);
+public record RoleDto(long Id, string Name, string? Description);
 
 public static class RoleDtoExtension
 {

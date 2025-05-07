@@ -4,7 +4,7 @@ namespace InterviewTrainer.Application.Abstractions.Services;
 
 public interface ISuggestedAnswerService
 {
-    Task<SuggestedAnswerDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<SuggestedAnswerDto> GetByIdAsync(long id, CancellationToken cancellationToken);
 
     Task<List<SuggestedAnswerDto>> GetPagedAsync(
         SuggestedAnswerFilterDto suggestedAnswerFilterDto, CancellationToken cancellationToken);
@@ -14,5 +14,5 @@ public interface ISuggestedAnswerService
 
     Task UpdateAsync(UpdateSuggestedAnswerDto updateSuggestedAnswerDto, CancellationToken cancellationToken);
 
-    Task DeleteAsync(Guid id, CancellationToken cancellationToken);
+    Task DeleteAsync(long id, CancellationToken cancellationToken);
 }

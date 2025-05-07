@@ -4,15 +4,15 @@ using InterviewTrainer.Domain.Enums;
 namespace InterviewTrainer.Application.Contracts.Questions;
 
 public record QuestionDto(
-    Guid Id,
-    Guid TopicId,
+    long Id,
+    long TopicId,
     Difficulty Difficulty,
     QuestionStatus Status,
     string Text,
     string? Answer,
     bool Archived = false)
 {
-    public List<Guid> TagIds { get; init; } = [];
+    public List<long> TagIds { get; init; } = [];
 }
 
 public static class QuestionDtoExtension

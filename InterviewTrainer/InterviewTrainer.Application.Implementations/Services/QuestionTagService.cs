@@ -25,7 +25,7 @@ public class QuestionTagService : IQuestionTagService
         return questions.Select(q => q.ToDto()).ToList();
     }
 
-    public async Task<QuestionDto> AddTagToQuestionAsync(Guid questionId, Guid tagId,
+    public async Task<QuestionDto> AddTagToQuestionAsync(long questionId, long tagId,
         CancellationToken cancellationToken)
     {
         var question = await _questionRepository.GetOrThrowAsync(questionId, cancellationToken);
@@ -45,7 +45,7 @@ public class QuestionTagService : IQuestionTagService
         return question.ToDto();
     }
 
-    public async Task<QuestionDto> RemoveTagFromQuestionAsync(Guid questionId, Guid tagId,
+    public async Task<QuestionDto> RemoveTagFromQuestionAsync(long questionId, long tagId,
         CancellationToken cancellationToken)
     {
         var question = await _questionRepository.GetOrThrowAsync(questionId, cancellationToken);

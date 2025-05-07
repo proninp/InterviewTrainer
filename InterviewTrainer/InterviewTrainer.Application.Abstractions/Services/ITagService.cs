@@ -4,7 +4,7 @@ namespace InterviewTrainer.Application.Abstractions.Services;
 
 public interface ITagService
 {
-    Task<TagDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<TagDto> GetByIdAsync(long id, CancellationToken cancellationToken);
     
     Task<List<TagDto>> GetPagedAsync(TagFilterDto tagFilterDto, CancellationToken cancellationToken);
     
@@ -12,5 +12,5 @@ public interface ITagService
     
     Task UpdateAsync(UpdateTagDto updateTagDto, CancellationToken cancellationToken);
     
-    Task DeleteAsync(Guid id, CancellationToken cancellationToken);
+    Task DeleteAsync(long id, CancellationToken cancellationToken);
 }

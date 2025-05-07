@@ -2,9 +2,9 @@
 
 namespace InterviewTrainer.Domain.Entities;
 
-public class SuggestedAnswer(Guid questionId, string answer) : IdentityModel
+public class SuggestedAnswer(long questionId, string answer) : IdentityModel
 {
-    public Guid QuestionId { get; set; } = questionId;
+    public long QuestionId { get; set; } = questionId;
 
     public Question Question { get; set; } = null!;
     

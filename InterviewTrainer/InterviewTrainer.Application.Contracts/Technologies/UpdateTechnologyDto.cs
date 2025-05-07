@@ -1,3 +1,3 @@
 ﻿namespace InterviewTrainer.Application.Contracts.Technologies;
 
-public record UpdateTechnologyDto(Guid Id, string? Name = null, bool? Archived = null);
+public record UpdateTechnologyDto(long Id, string? Name = null, bool? Archived = null);

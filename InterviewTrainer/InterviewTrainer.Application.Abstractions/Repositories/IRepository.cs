@@ -5,11 +5,9 @@ namespace InterviewTrainer.Application.Abstractions.Repositories;
 public interface IRepository<T> 
     where T : IdentityModel
 {
-    Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken, bool noTracking = false);
+    Task<T?> GetAsync(long id, CancellationToken cancellationToken);
     
-    Task<T?> GetAsync(Guid id, CancellationToken cancellationToken);
-    
-    Task<T> GetOrThrowAsync(Guid id, CancellationToken cancellationToken);
+    Task<T> GetOrThrowAsync(long id, CancellationToken cancellationToken);
     
     Task<T> AddAsync(T entity, CancellationToken cancellationToken);
     
@@ -17,7 +15,7 @@ public interface IRepository<T>
     
     void Update(T entity);
     
-    bool Delete(Guid id);
+    bool Delete(long id);
     
     bool Delete(T entity);
 }

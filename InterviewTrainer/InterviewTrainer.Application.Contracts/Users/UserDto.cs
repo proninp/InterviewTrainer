@@ -2,9 +2,9 @@
 
 namespace InterviewTrainer.Application.Contracts.Users;
 
-public record UserDto(Guid Id, long? TelegramId, string? UserName, string? Email)
+public record UserDto(long Id, long? TelegramId, string? UserName, string? Email)
 {
-    public List<Guid> RoleIds { get; init; } = [];
+    public List<long> RoleIds { get; init; } = [];
 }
 
 public static class UserDtoExtension

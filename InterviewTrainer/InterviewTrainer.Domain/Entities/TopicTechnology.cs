@@ -2,13 +2,13 @@
 
 namespace InterviewTrainer.Domain.Entities;
 
-public class TopicTechnology(Guid technologyId, Guid topicId)
+public class TopicTechnology(long technologyId, long topicId)
 {
-    public Guid TechnologyId { get; set; } = technologyId;
+    public long TechnologyId { get; set; } = technologyId;
 
     public Technology Technology { get; set; } = null!;
 
-    public Guid TopicId { get; set; } = topicId;
+    public long TopicId { get; set; } = topicId;
 
     public Topic Topic { get; set; } = null!;
 }

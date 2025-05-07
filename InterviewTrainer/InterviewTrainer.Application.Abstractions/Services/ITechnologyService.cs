@@ -4,7 +4,7 @@ namespace InterviewTrainer.Application.Abstractions.Services;
 
 public interface ITechnologyService
 {
-    Task<TechnologyDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<TechnologyDto> GetByIdAsync(long id, CancellationToken cancellationToken);
     
     Task<List<TechnologyDto>> GetPagedAsync(
         TechnologyFilterDto technologyFilterDto, CancellationToken cancellationToken);
@@ -13,5 +13,5 @@ public interface ITechnologyService
     
     Task UpdateAsync(UpdateTechnologyDto updateTechnologyDto, CancellationToken cancellationToken);
     
-    Task DeleteAsync(Guid id, CancellationToken cancellationToken);
+    Task DeleteAsync(long id, CancellationToken cancellationToken);
 }

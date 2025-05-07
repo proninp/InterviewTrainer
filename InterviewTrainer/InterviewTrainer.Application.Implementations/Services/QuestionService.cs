@@ -16,7 +16,7 @@ public class QuestionService : IQuestionService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<QuestionDto> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<QuestionDto> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
         var question = await _questionRepository.GetOrThrowAsync(id, cancellationToken);
         return question.ToDto();
@@ -113,7 +113,7 @@ public class QuestionService : IQuestionService
         }
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
         var question = await _questionRepository.GetAsync(id, cancellationToken);
         if (question is not null)
@@ -123,7 +123,7 @@ public class QuestionService : IQuestionService
         }
     }
 
-    private void CheckQuestionIdentityPropertiesAsync(Guid? excludeId, string? text, string? answer,
+    private void CheckQuestionIdentityPropertiesAsync(long? excludeId, string? text, string? answer,
         CancellationToken cancellationToken)
     {
         if (text is not null && string.IsNullOrWhiteSpace(text))

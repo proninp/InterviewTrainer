@@ -2,9 +2,9 @@
 
 namespace InterviewTrainer.Application.Contracts.Technologies;
 
-public record TechnologyDto(Guid Id, string Name, bool Archived)
+public record TechnologyDto(long Id, string Name, bool Archived)
 {
-    public List<Guid> TopicIds { get; init; } = [];
+    public List<long> TopicIds { get; init; } = [];
 }
 
 public static class TechnologyDtoExtension

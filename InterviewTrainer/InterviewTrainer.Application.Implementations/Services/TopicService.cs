@@ -16,7 +16,7 @@ public class TopicService : ITopicService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<TopicDto> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<TopicDto> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
         var topic = await _topicRepository.GetOrThrowAsync(id, cancellationToken);
         return topic.ToDto();
@@ -64,7 +64,7 @@ public class TopicService : ITopicService
         }
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
         var topic = await _topicRepository.GetAsync(id, cancellationToken);
         if (topic is not null)
@@ -74,7 +74,7 @@ public class TopicService : ITopicService
         }
     }
 
-    private async Task CheckTopicIdentityPropertiesAsync(Guid? excludeId, string? name,
+    private async Task CheckTopicIdentityPropertiesAsync(long? excludeId, string? name,
         CancellationToken cancellationToken)
     {
         if (name is not null)

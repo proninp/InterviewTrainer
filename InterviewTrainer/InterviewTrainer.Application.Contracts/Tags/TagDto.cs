@@ -2,9 +2,9 @@
 
 namespace InterviewTrainer.Application.Contracts.Tags;
 
-public record TagDto(Guid Id, string Name)
+public record TagDto(long Id, string Name)
 {
-    public List<Guid> QuestionIds { get; init; } = [];
+    public List<long> QuestionIds { get; init; } = [];
 }
 
 public static class TagDtoExtension
