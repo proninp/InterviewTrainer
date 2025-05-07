@@ -4,11 +4,11 @@ namespace InterviewTrainer.Application.Abstractions.Services;
 
 public interface IUserRoleService
 {
-    Task<bool> CheckUserRoleExistsAsync(Guid userId, Guid roleId, CancellationToken cancellationToken);
+    Task<bool> CheckUserRoleExistsAsync(long userId, long roleId, CancellationToken cancellationToken);
     
     Task<List<UserDto>> GetUsersByRollNameAsync(string roleName, CancellationToken cancellationToken);
     
-    Task<UserDto> AddUserRoleAsync(Guid userId, Guid roleId, CancellationToken cancellationToken);
+    Task<UserDto> AddUserRoleAsync(long userId, long roleId, CancellationToken cancellationToken);
     
-    Task<UserDto> RemoveUserRoleAsync(Guid userId, Guid roleId, CancellationToken cancellationToken);
+    Task<UserDto> RemoveUserRoleAsync(long userId, long roleId, CancellationToken cancellationToken);
 }

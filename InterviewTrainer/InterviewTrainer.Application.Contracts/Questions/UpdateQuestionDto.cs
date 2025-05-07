@@ -3,8 +3,8 @@
 namespace InterviewTrainer.Application.Contracts.Questions;
 
 public record UpdateQuestionDto(
-    Guid Id,
-    Guid? TopicId = null,
+    long Id,
+    long? TopicId = null,
     Difficulty? Difficulty = null,
     QuestionStatus? Status = null,
     string? Text = null,

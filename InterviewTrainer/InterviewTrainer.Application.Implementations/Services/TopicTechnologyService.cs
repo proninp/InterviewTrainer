@@ -27,7 +27,7 @@ public class TopicTechnologyService : ITopicTechnologyService
         return topics.Select(t => t.ToDto()).ToList();
     }
 
-    public async Task<TechnologyDto> AddTopicAsync(Guid technologyId, Guid topicId, CancellationToken cancellationToken)
+    public async Task<TechnologyDto> AddTopicAsync(long technologyId, long topicId, CancellationToken cancellationToken)
     {
         var technology = await _technologyRepository.GetOrThrowAsync(technologyId, cancellationToken);
 
@@ -47,7 +47,7 @@ public class TopicTechnologyService : ITopicTechnologyService
         return technology.ToDto();
     }
 
-    public async Task<TechnologyDto> RemoveTopicAsync(Guid technologyId, Guid topicId,
+    public async Task<TechnologyDto> RemoveTopicAsync(long technologyId, long topicId,
         CancellationToken cancellationToken)
     {
         var technology = await _technologyRepository.GetOrThrowAsync(technologyId, cancellationToken);

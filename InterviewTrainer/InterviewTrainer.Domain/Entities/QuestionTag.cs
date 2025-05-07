@@ -2,13 +2,13 @@
 
 namespace InterviewTrainer.Domain.Entities;
 
-public class QuestionTag(Guid questionId, Guid tagId)
+public class QuestionTag(long questionId, long tagId)
 {
-    public Guid QuestionId { get; set; } = questionId;
+    public long QuestionId { get; set; } = questionId;
 
     public Question Question { get; set; } = null!;
 
-    public Guid TagId { get; set; } = tagId;
+    public long TagId { get; set; } = tagId;
     
     public Tag Tag { get; set; } = null!;
 }

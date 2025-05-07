@@ -16,7 +16,7 @@ public class TagService : ITagService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<TagDto> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<TagDto> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
         var tag = await _tagRepository.GetOrThrowAsync(id, cancellationToken);
         return tag.ToDto();
@@ -65,7 +65,7 @@ public class TagService : ITagService
         }
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
         var tag = await _tagRepository.GetAsync(id, cancellationToken);
         if (tag is not null)
@@ -75,7 +75,7 @@ public class TagService : ITagService
         }
     }
     
-    private async Task CheckTagIdentityPropertiesAsync(Guid? excludeId, string? name, CancellationToken cancellationToken)
+    private async Task CheckTagIdentityPropertiesAsync(long? excludeId, string? name, CancellationToken cancellationToken)
     {
         if (name is not null)
         {

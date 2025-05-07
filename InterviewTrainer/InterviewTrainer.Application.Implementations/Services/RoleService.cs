@@ -16,13 +16,13 @@ public class RoleService : IRoleService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<RoleDto> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<RoleDto> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetOrThrowAsync(id, cancellationToken);
         return role.ToDto();
     }
 
-    public async Task<bool?> IsActiveRoleAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<bool?> IsActiveRoleAsync(long id, CancellationToken cancellationToken)
     {
         return await _roleRepository.IsActiveRoleAsync(id, cancellationToken);
     }
@@ -76,7 +76,7 @@ public class RoleService : IRoleService
         }
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
         var role = await _roleRepository.GetAsync(id, cancellationToken);
         if (role is not null)
@@ -86,7 +86,7 @@ public class RoleService : IRoleService
         }
     }
 
-    private async Task CheckRoleIdentityPropertiesAsync(Guid? excludeId, string? name, CancellationToken cancellationToken)
+    private async Task CheckRoleIdentityPropertiesAsync(long? excludeId, string? name, CancellationToken cancellationToken)
     {
         if (name is not null)
         {

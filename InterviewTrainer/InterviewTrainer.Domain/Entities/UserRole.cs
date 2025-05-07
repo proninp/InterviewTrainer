@@ -2,13 +2,13 @@
 
 namespace InterviewTrainer.Domain.Entities;
 
-public class UserRole(Guid userId, Guid roleId)
+public class UserRole(long userId, long roleId)
 {
-    public Guid UserId { get; set; } = userId;
+    public long UserId { get; set; } = userId;
 
     public User User { get; set; } = null!;
 
-    public Guid RoleId { get; set; } = roleId;
+    public long RoleId { get; set; } = roleId;
 
     public Role Role { get; set; } = null!;
 }

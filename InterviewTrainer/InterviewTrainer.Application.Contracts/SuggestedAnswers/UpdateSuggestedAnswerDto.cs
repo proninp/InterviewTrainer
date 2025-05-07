@@ -1,3 +1,3 @@
 ﻿namespace InterviewTrainer.Application.Contracts.SuggestedAnswers;
 
-public record UpdateSuggestedAnswerDto(Guid Id, Guid? QuestionId, string Answer);
+public record UpdateSuggestedAnswerDto(long Id, long? QuestionId, string Answer);

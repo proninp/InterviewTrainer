@@ -16,7 +16,7 @@ public class TechnologyService : ITechnologyService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<TechnologyDto> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<TechnologyDto> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
         var technology = await _technologyRepository.GetOrThrowAsync(id, cancellationToken);
         return technology.ToDto();
@@ -69,7 +69,7 @@ public class TechnologyService : ITechnologyService
         }
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
         var technology = await _technologyRepository.GetAsync(id, cancellationToken);
         if (technology is not null)
@@ -79,7 +79,7 @@ public class TechnologyService : ITechnologyService
         }
     }
 
-    private async Task CheckTechnologyIdentityPropertiesAsync(Guid? excludeId, string? name,
+    private async Task CheckTechnologyIdentityPropertiesAsync(long? excludeId, string? name,
         CancellationToken cancellationToken)
     {
         if (name is not null)

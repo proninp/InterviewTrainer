@@ -4,7 +4,7 @@ using InterviewTrainer.Domain.Enums;
 namespace InterviewTrainer.Application.Contracts.Questions;
 
 public record CreateQuestionDto(
-    Guid TopicId,
+    long TopicId,
     Difficulty Difficulty,
     string Text,
     string? Answer = null,

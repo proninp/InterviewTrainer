@@ -1,3 +1,3 @@
 ﻿namespace InterviewTrainer.Application.Contracts.Roles;
 
-public record UpdateRoleDto(Guid Id, string? Name, string? Description);
+public record UpdateRoleDto(long Id, string? Name, string? Description);

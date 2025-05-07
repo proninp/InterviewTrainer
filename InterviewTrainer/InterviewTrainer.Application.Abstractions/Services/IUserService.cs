@@ -4,7 +4,7 @@ namespace InterviewTrainer.Application.Abstractions.Services;
 
 public interface IUserService
 {
-    Task<UserDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<UserDto> GetByIdAsync(long id, CancellationToken cancellationToken);
     
     Task<List<UserDto>> GetPagedAsync(UserFilterDto userFilterDto, CancellationToken cancellationToken);
     
@@ -12,5 +12,5 @@ public interface IUserService
     
     Task UpdateAsync(UpdateUserDto updateUserDto, CancellationToken cancellationToken);
     
-    Task DeleteAsync(Guid id, CancellationToken cancellationToken);
+    Task DeleteAsync(long id, CancellationToken cancellationToken);
 }

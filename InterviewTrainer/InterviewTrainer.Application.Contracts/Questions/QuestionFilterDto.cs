@@ -5,7 +5,7 @@ namespace InterviewTrainer.Application.Contracts.Questions;
 public record QuestionFilterDto(
     int ItemsPerPage,
     int Page,
-    Guid? TopicId = null,
+    long? TopicId = null,
     Difficulty? Difficulty = null,
     QuestionStatus? Status = null,
     string? Text = null,

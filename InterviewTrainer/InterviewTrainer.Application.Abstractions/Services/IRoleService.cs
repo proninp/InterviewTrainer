@@ -4,9 +4,9 @@ namespace InterviewTrainer.Application.Abstractions.Services;
 
 public interface IRoleService
 {
-    Task<RoleDto> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<RoleDto> GetByIdAsync(long id, CancellationToken cancellationToken);
     
-    Task<bool?> IsActiveRoleAsync(Guid id, CancellationToken cancellationToken);
+    Task<bool?> IsActiveRoleAsync(long id, CancellationToken cancellationToken);
     
     Task<List<RoleDto>> GetPagedAsync(RoleFilterDto roleFilterDto, CancellationToken cancellationToken);
     
@@ -14,5 +14,5 @@ public interface IRoleService
     
     Task UpdateAsync(UpdateRoleDto updateRoleDto, CancellationToken cancellationToken);
     
-    Task DeleteAsync(Guid id, CancellationToken cancellationToken);
+    Task DeleteAsync(long id, CancellationToken cancellationToken);
 }

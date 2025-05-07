@@ -16,7 +16,7 @@ public class UserService : IUserService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<UserDto> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<UserDto> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetOrThrowAsync(id, cancellationToken);
         return user.ToDto();
@@ -74,7 +74,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetAsync(id, cancellationToken);
         if (user is not null)
@@ -84,7 +84,7 @@ public class UserService : IUserService
         }
     }
 
-    private async Task CheckUserIdentityPropertiesAsync(Guid? excludeId, long? telegramId, string? email,
+    private async Task CheckUserIdentityPropertiesAsync(long? excludeId, long? telegramId, string? email,
         CancellationToken cancellationToken)
     {
         bool isUserAlreadyExists;

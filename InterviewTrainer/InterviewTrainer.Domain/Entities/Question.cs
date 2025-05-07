@@ -4,10 +4,10 @@ using InterviewTrainer.Domain.Enums;
 namespace InterviewTrainer.Domain.Entities;
 
 public class Question(
-    Guid topicId, Difficulty difficulty, QuestionStatus status, string text, string? answer, bool archived = false)
+    long topicId, Difficulty difficulty, QuestionStatus status, string text, string? answer, bool archived = false)
     : IdentityModel
 {
-    public Guid TopicId { get; set; } = topicId;
+    public long TopicId { get; set; } = topicId;
 
     public Topic Topic { get; set; } = null!;
 

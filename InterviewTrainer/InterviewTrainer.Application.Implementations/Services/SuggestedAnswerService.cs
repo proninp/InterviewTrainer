@@ -18,7 +18,7 @@ public class SuggestedAnswerService : ISuggestedAnswerService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<SuggestedAnswerDto> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<SuggestedAnswerDto> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
         var sa = await _suggestedAnswerRepository.GetOrThrowAsync(id, cancellationToken);
         return sa.ToDto();
@@ -74,7 +74,7 @@ public class SuggestedAnswerService : ISuggestedAnswerService
         }
     }
 
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
         var sa = await _suggestedAnswerRepository.GetAsync(id, cancellationToken);
         if (sa is not null)
