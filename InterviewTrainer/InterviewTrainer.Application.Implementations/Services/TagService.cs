@@ -1,7 +1,9 @@
-﻿using InterviewTrainer.Application.Abstractions.Repositories;
+﻿using InterviewTrainer.Domain.Entities;
+using InterviewTrainer.Application.Abstractions.Repositories;
 using InterviewTrainer.Application.Abstractions.Services;
 using InterviewTrainer.Application.Contracts.Tags;
-using InterviewTrainer.Application.Implementations.Exceptions;
+using InterviewTrainer.Application.Implementations.Errors;
+using FluentResults;
 
 namespace InterviewTrainer.Application.Implementations.Services;
 
@@ -16,10 +18,12 @@ public class TagService : ITagService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<TagDto> GetByIdAsync(long id, CancellationToken cancellationToken)
+    public async Task<Result<TagDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var tag = await _tagRepository.GetOrThrowAsync(id, cancellationToken);
-        return tag.ToDto();
+        var tag = await _tagRepository.GetAsync(id, cancellationToken);
+        return tag is null
+        ? Result.Fail<TagDto>(ErrorsFactory.NotFound(nameof(tag), id))
+        : Result.Ok(tag.ToDto());
     }
 
     public async Task<List<TagDto>> GetPagedAsync(TagFilterDto tagFilterDto, CancellationToken cancellationToken)
@@ -28,31 +32,31 @@ public class TagService : ITagService
         return tags.Select(tag => tag.ToDto()).ToList();
     }
 
-    public async Task<TagDto> CreateAsync(CreateTagDto createTagDto, CancellationToken cancellationToken)
+    public async Task<Result<TagDto>> CreateAsync(CreateTagDto createTagDto, CancellationToken cancellationToken)
     {
-        await CheckTagIdentityPropertiesAsync(null, createTagDto.Name, cancellationToken);
+        var checkResult = await CheckTagIdentityPropertiesAsync(null, createTagDto.Name, cancellationToken);
+        if (checkResult.IsFailed)
+            return Result.Fail<TagDto>(checkResult.Errors);
         
         var tag = await _tagRepository.AddAsync(createTagDto.ToTag(), cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return tag.ToDto();
+        return Result.Ok(tag.ToDto());
     }
 
-    public async Task UpdateAsync(UpdateTagDto updateTagDto, CancellationToken cancellationToken)
+    public async Task<Result> UpdateAsync(UpdateTagDto updateTagDto, CancellationToken cancellationToken)
     {
-        if (updateTagDto.Name is not null && string.IsNullOrWhiteSpace(updateTagDto.Name))
-        {
-            throw new BusinessRuleViolationException("Tag name cannot be empty.");
-        }
-        
-        await CheckTagIdentityPropertiesAsync(updateTagDto.Id, updateTagDto.Name, cancellationToken);
+        var checkResult = await CheckTagIdentityPropertiesAsync(updateTagDto.Id, updateTagDto.Name, cancellationToken);
+        if (checkResult.IsFailed)
+            return checkResult;
 
         var isNeedUpdate = false;
 
-        var tag = await _tagRepository.GetOrThrowAsync(updateTagDto.Id, cancellationToken);
+        var tag = await _tagRepository.GetAsync(updateTagDto.Id, cancellationToken);
+        if (tag is null)
+            return Result.Fail(ErrorsFactory.NotFound(nameof(tag), updateTagDto.Id));
 
-        if (updateTagDto.Name is not null &&
-            !string.Equals(tag.Name, updateTagDto.Name, StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(tag.Name, updateTagDto.Name, StringComparison.OrdinalIgnoreCase))
         {
             tag.Name = updateTagDto.Name;
             isNeedUpdate = true;
@@ -63,6 +67,7 @@ public class TagService : ITagService
             _tagRepository.Update(tag);
             await _unitOfWork.CommitAsync(cancellationToken);
         }
+        return Result.Ok();
     }
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
@@ -75,17 +80,20 @@ public class TagService : ITagService
         }
     }
     
-    private async Task CheckTagIdentityPropertiesAsync(long? excludeId, string? name, CancellationToken cancellationToken)
+    private async Task<Result> CheckTagIdentityPropertiesAsync(long? excludeId, string? name, CancellationToken cancellationToken)
     {
         if (name is not null)
         {
+            if (string.IsNullOrWhiteSpace(name))
+                return Result.Fail(ErrorsFactory.Required(nameof(Tag), nameof(name)));
+            
             var isTagAlreadyExists =
                 await _tagRepository.ExistsByNameAsync(name, excludeId, cancellationToken);
             if (isTagAlreadyExists)
             {
-                throw new BusinessRuleViolationException(
-                    $"Tag with Name '{name}' already exists");
+                return Result.Fail(ErrorsFactory.AlreadyExists(nameof(Tag), nameof(name), name));
             }
         }
+        return Result.Ok();
     }
 }

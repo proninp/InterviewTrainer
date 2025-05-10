@@ -1,6 +1,8 @@
 ﻿using InterviewTrainer.Application.Abstractions.Repositories;
 using InterviewTrainer.Application.Abstractions.Services;
 using InterviewTrainer.Application.Contracts.SuggestedAnswers;
+using InterviewTrainer.Application.Implementations.Errors;
+using FluentResults;
 
 namespace InterviewTrainer.Application.Implementations.Services;
 
@@ -18,10 +20,12 @@ public class SuggestedAnswerService : ISuggestedAnswerService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<SuggestedAnswerDto> GetByIdAsync(long id, CancellationToken cancellationToken)
+    public async Task<Result<SuggestedAnswerDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var sa = await _suggestedAnswerRepository.GetOrThrowAsync(id, cancellationToken);
-        return sa.ToDto();
+        var suggestedAnswer = await _suggestedAnswerRepository.GetAsync(id, cancellationToken);
+        return suggestedAnswer is null
+            ? Result.Fail<SuggestedAnswerDto>(ErrorsFactory.NotFound(nameof(suggestedAnswer), id))
+            : Result.Ok(suggestedAnswer.ToDto());
     }
 
     public async Task<List<SuggestedAnswerDto>> GetPagedAsync(SuggestedAnswerFilterDto suggestedAnswerFilterDto,
@@ -32,46 +36,55 @@ public class SuggestedAnswerService : ISuggestedAnswerService
         return suggestedAnswers.Select(sa => sa.ToDto()).ToList();
     }
 
-    public async Task<SuggestedAnswerDto> CreateAsync(CreateSuggestedAnswerDto createSuggestedAnswerDto,
+    public async Task<Result<SuggestedAnswerDto>> CreateAsync(CreateSuggestedAnswerDto createSuggestedAnswerDto,
         CancellationToken cancellationToken)
     {
-        _ = await _questionRepository.GetOrThrowAsync(createSuggestedAnswerDto.QuestionId, cancellationToken);
+        var question = await _questionRepository.GetAsync(createSuggestedAnswerDto.QuestionId, cancellationToken);
+        if (question is null)
+            Result.Fail<SuggestedAnswerDto>(ErrorsFactory.NotFound(nameof(question),
+                createSuggestedAnswerDto.QuestionId));
         
         var sa = await _suggestedAnswerRepository.AddAsync(createSuggestedAnswerDto.ToSuggestedAnswer(), cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return sa.ToDto();
+        return Result.Ok(sa.ToDto());
     }
 
-    public async Task UpdateAsync(UpdateSuggestedAnswerDto updateSuggestedAnswerDto, CancellationToken cancellationToken)
+    public async Task<Result> UpdateAsync(UpdateSuggestedAnswerDto updateSuggestedAnswerDto, CancellationToken cancellationToken)
     {
         if (updateSuggestedAnswerDto.QuestionId is not null)
         { 
-            _ = await _questionRepository.GetOrThrowAsync(updateSuggestedAnswerDto.QuestionId.Value, cancellationToken);
+            var question = await _questionRepository.GetAsync(updateSuggestedAnswerDto.QuestionId.Value, cancellationToken);
+            if (question is null)
+                Result.Fail<SuggestedAnswerDto>(ErrorsFactory.NotFound(nameof(question),
+                    updateSuggestedAnswerDto.QuestionId.Value));
         }
         
-        var sa = await _suggestedAnswerRepository.GetOrThrowAsync(updateSuggestedAnswerDto.Id, cancellationToken);
-
+        var suggestedAnswer = await _suggestedAnswerRepository.GetAsync(updateSuggestedAnswerDto.Id, cancellationToken);
+        if (suggestedAnswer is null)
+            return Result.Fail(ErrorsFactory.NotFound(nameof(suggestedAnswer), updateSuggestedAnswerDto.Id));
+        
         var isNeedUpdate = false;
         
-        if (!string.Equals(sa.Answer, updateSuggestedAnswerDto.Answer))
+        if (!string.Equals(suggestedAnswer.Answer, updateSuggestedAnswerDto.Answer))
         {
-            sa.Answer = updateSuggestedAnswerDto.Answer;
+            suggestedAnswer.Answer = updateSuggestedAnswerDto.Answer;
             isNeedUpdate = true;
         }
 
         if (updateSuggestedAnswerDto.QuestionId is not null &&
-            sa.QuestionId != updateSuggestedAnswerDto.QuestionId.Value)
+            suggestedAnswer.QuestionId != updateSuggestedAnswerDto.QuestionId.Value)
         {
-            sa.QuestionId = updateSuggestedAnswerDto.QuestionId.Value;
+            suggestedAnswer.QuestionId = updateSuggestedAnswerDto.QuestionId.Value;
             isNeedUpdate = true;
         }
 
         if (isNeedUpdate)
         {
-            _suggestedAnswerRepository.Update(sa);
+            _suggestedAnswerRepository.Update(suggestedAnswer);
             await _unitOfWork.CommitAsync(cancellationToken);
         }
+        return Result.Ok();
     }
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
