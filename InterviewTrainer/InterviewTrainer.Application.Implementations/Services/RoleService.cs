@@ -1,7 +1,9 @@
-﻿using InterviewTrainer.Application.Abstractions.Repositories;
+﻿using InterviewTrainer.Domain.Entities;
+using InterviewTrainer.Application.Abstractions.Repositories;
 using InterviewTrainer.Application.Abstractions.Services;
 using InterviewTrainer.Application.Contracts.Roles;
-using InterviewTrainer.Application.Implementations.Exceptions;
+using InterviewTrainer.Application.Implementations.Errors;
+using FluentResults;
 
 namespace InterviewTrainer.Application.Implementations.Services;
 
@@ -16,10 +18,12 @@ public class RoleService : IRoleService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<RoleDto> GetByIdAsync(long id, CancellationToken cancellationToken)
+    public async Task<Result<RoleDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var role = await _roleRepository.GetOrThrowAsync(id, cancellationToken);
-        return role.ToDto();
+        var role = await _roleRepository.GetAsync(id, cancellationToken);
+        return role is null
+            ? Result.Fail<RoleDto>(ErrorsFactory.NotFound(nameof(role), id))
+            : Result.Ok(role.ToDto());
     }
 
     public async Task<bool?> IsActiveRoleAsync(long id, CancellationToken cancellationToken)
@@ -33,28 +37,36 @@ public class RoleService : IRoleService
         return roles.Select(role => role.ToDto()).ToList();
     }
 
-    public async Task<RoleDto> CreateAsync(CreateRoleDto createRoleDto, CancellationToken cancellationToken)
+    public async Task<Result<RoleDto>> CreateAsync(CreateRoleDto createRoleDto, CancellationToken cancellationToken)
     {
-        await CheckRoleIdentityPropertiesAsync(null, createRoleDto.Name, cancellationToken);
+        var checkResult = await CheckRoleIdentityPropertiesAsync(null, createRoleDto.Name, cancellationToken);
+        if (checkResult.IsFailed)
+        {
+            return Result.Fail<RoleDto>(checkResult.Errors);
+        }
         
         var role = await _roleRepository.AddAsync(createRoleDto.ToRole(), cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return role.ToDto();
+        return Result.Ok(role.ToDto());
     }
 
-    public async Task UpdateAsync(UpdateRoleDto updateRoleDto, CancellationToken cancellationToken)
+    public async Task<Result> UpdateAsync(UpdateRoleDto updateRoleDto, CancellationToken cancellationToken)
     {
-        if (updateRoleDto.Name is not null && string.IsNullOrWhiteSpace(updateRoleDto.Name))
+        var role = await _roleRepository.GetAsync(updateRoleDto.Id, cancellationToken);
+        if (role is null)
         {
-            throw new BusinessRuleViolationException("Role name cannot be empty.");
+            return Result.Fail(ErrorsFactory.NotFound(nameof(role), updateRoleDto.Id));
         }
         
-        await CheckRoleIdentityPropertiesAsync(updateRoleDto.Id, updateRoleDto.Name, cancellationToken);
+        var checkResult = await CheckRoleIdentityPropertiesAsync(updateRoleDto.Id, updateRoleDto.Name, cancellationToken);
+        if (checkResult.IsFailed)
+        {
+            return checkResult;
+        }
 
         var isNeedUpdate = false;
 
-        var role = await _roleRepository.GetOrThrowAsync(updateRoleDto.Id, cancellationToken);
 
         if (updateRoleDto.Name is not null &&
             !string.Equals(role.Name, updateRoleDto.Name, StringComparison.OrdinalIgnoreCase))
@@ -74,6 +86,8 @@ public class RoleService : IRoleService
             _roleRepository.Update(role);
             await _unitOfWork.CommitAsync(cancellationToken);
         }
+        
+        return Result.Ok();
     }
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
@@ -86,15 +100,22 @@ public class RoleService : IRoleService
         }
     }
 
-    private async Task CheckRoleIdentityPropertiesAsync(long? excludeId, string? name, CancellationToken cancellationToken)
+    private async Task<Result> CheckRoleIdentityPropertiesAsync(long? excludeId, string? name, CancellationToken cancellationToken)
     {
         if (name is not null)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return Result.Fail(ErrorsFactory.Required(nameof(Role), nameof(name)));
+            }
+            
             var isNameAlreadyExists = await _roleRepository.ExistsByNameAsync(name, excludeId, cancellationToken);
             if (isNameAlreadyExists)
             {
-                throw new BusinessRuleViolationException($"Role with name '{name}' already exists.");
+                return Result.Fail(ErrorsFactory.AlreadyExists(nameof(Role), nameof(name), name));
             }
         }
+
+        return Result.Ok();
     }
 }

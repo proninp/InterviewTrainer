@@ -7,8 +7,6 @@ public interface IRepository<T>
 {
     Task<T?> GetAsync(long id, CancellationToken cancellationToken);
     
-    Task<T> GetOrThrowAsync(long id, CancellationToken cancellationToken);
-    
     Task<T> AddAsync(T entity, CancellationToken cancellationToken);
     
     Task AddRangeAsync(ICollection<T> entities, CancellationToken cancellationToken);

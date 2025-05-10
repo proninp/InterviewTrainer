@@ -1,7 +1,9 @@
-﻿using InterviewTrainer.Application.Abstractions.Repositories;
+﻿using InterviewTrainer.Domain.Entities;
+using InterviewTrainer.Application.Abstractions.Repositories;
 using InterviewTrainer.Application.Abstractions.Services;
 using InterviewTrainer.Application.Contracts.Questions;
-using InterviewTrainer.Application.Implementations.Exceptions;
+using InterviewTrainer.Application.Implementations.Errors;
+using FluentResults;
 
 namespace InterviewTrainer.Application.Implementations.Services;
 
@@ -16,10 +18,12 @@ public class QuestionService : IQuestionService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<QuestionDto> GetByIdAsync(long id, CancellationToken cancellationToken)
+    public async Task<Result<QuestionDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var question = await _questionRepository.GetOrThrowAsync(id, cancellationToken);
-        return question.ToDto();
+        var question = await _questionRepository.GetAsync(id, cancellationToken);
+        return question is null
+            ? Result.Fail<QuestionDto>(ErrorsFactory.NotFound(nameof(question), id))
+            : Result.Ok(question.ToDto());
     }
 
     public async Task<List<QuestionDto>> GetPagedAsync(QuestionFilterDto questionFilterDto,
@@ -29,7 +33,7 @@ public class QuestionService : IQuestionService
         return questions.Select(q => q.ToDto()).ToList();
     }
 
-    public async Task<QuestionDto> GetRandomAsync(QuestionFilterDto questionFilterDto,
+    public async Task<Result<QuestionDto>> GetRandomAsync(QuestionFilterDto questionFilterDto,
         CancellationToken cancellationToken)
     {
         var questions = await _questionRepository.GetPagedAsync(questionFilterDto, cancellationToken);
@@ -37,33 +41,42 @@ public class QuestionService : IQuestionService
 
         if (questionsList.Count == 0)
         {
-            throw new BusinessRuleViolationException("Not a single question was found for the selected parameters.");
+            return Result.Fail<QuestionDto>(QuestionErrors.NoQuestionsFoundByFilter());
         }
 
         var random = new Random();
         var question = questionsList[random.Next(0, questionsList.Count)];
 
-        return question.ToDto();
+        return Result.Ok(question.ToDto());
     }
 
-    public async Task<QuestionDto> CreateAsync(CreateQuestionDto createQuestionDto, CancellationToken cancellationToken)
+    public async Task<Result<QuestionDto>> CreateAsync(CreateQuestionDto createQuestionDto,
+        CancellationToken cancellationToken)
     {
-        CheckQuestionIdentityPropertiesAsync(null, createQuestionDto.Text, createQuestionDto.Answer,
+        var checkResult = CheckQuestionIdentityPropertiesAsync(null, createQuestionDto.Text, createQuestionDto.Answer,
             cancellationToken);
+        if (checkResult.IsFailed)
+            return Result.Fail<QuestionDto>(checkResult.Errors);
 
         var question = await _questionRepository.AddAsync(createQuestionDto.ToQuestion(), cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return question.ToDto();
+        return Result.Ok(question.ToDto());
     }
 
-    public async Task UpdateAsync(UpdateQuestionDto updateQuestionDto, CancellationToken cancellationToken)
+    public async Task<Result> UpdateAsync(UpdateQuestionDto updateQuestionDto, CancellationToken cancellationToken)
     {
-        CheckQuestionIdentityPropertiesAsync(updateQuestionDto.Id, updateQuestionDto.Text,
+        var checkResult = CheckQuestionIdentityPropertiesAsync(updateQuestionDto.Id, updateQuestionDto.Text,
             updateQuestionDto.Answer,
             cancellationToken);
+        
+        if (checkResult.IsFailed)
+            return checkResult;
 
-        var question = await _questionRepository.GetOrThrowAsync(updateQuestionDto.Id, cancellationToken);
+        var question = await _questionRepository.GetAsync(updateQuestionDto.Id, cancellationToken);
+        
+        if (question is null)
+            return Result.Fail(ErrorsFactory.NotFound(nameof(question), updateQuestionDto.Id));
 
         var isNeedUpdate = false;
 
@@ -111,6 +124,7 @@ public class QuestionService : IQuestionService
             _questionRepository.Update(question);
             await _unitOfWork.CommitAsync(cancellationToken);
         }
+        return Result.Ok();
     }
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
@@ -123,12 +137,14 @@ public class QuestionService : IQuestionService
         }
     }
 
-    private void CheckQuestionIdentityPropertiesAsync(long? excludeId, string? text, string? answer,
+    private Result CheckQuestionIdentityPropertiesAsync(long? excludeId, string? text, string? answer,
         CancellationToken cancellationToken)
     {
         if (text is not null && string.IsNullOrWhiteSpace(text))
         {
-            throw new BusinessRuleViolationException("Question text cannot be empty.");
+            return Result.Fail(ErrorsFactory.Required(nameof(Question), nameof(text)));
         }
+
+        return Result.Ok();
     }
 }

@@ -1,7 +1,9 @@
-﻿using InterviewTrainer.Application.Abstractions.Repositories;
+﻿using InterviewTrainer.Domain.Entities;
+using InterviewTrainer.Application.Abstractions.Repositories;
 using InterviewTrainer.Application.Abstractions.Services;
 using InterviewTrainer.Application.Contracts.Technologies;
-using InterviewTrainer.Application.Implementations.Exceptions;
+using InterviewTrainer.Application.Implementations.Errors;
+using FluentResults;
 
 namespace InterviewTrainer.Application.Implementations.Services;
 
@@ -16,10 +18,12 @@ public class TechnologyService : ITechnologyService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<TechnologyDto> GetByIdAsync(long id, CancellationToken cancellationToken)
+    public async Task<Result<TechnologyDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var technology = await _technologyRepository.GetOrThrowAsync(id, cancellationToken);
-        return technology.ToDto();
+        var technology = await _technologyRepository.GetAsync(id, cancellationToken);
+        return technology is null
+            ? Result.Fail<TechnologyDto>(ErrorsFactory.NotFound(nameof(technology), id))
+            : Result.Ok(technology.ToDto());
     }
 
     public async Task<List<TechnologyDto>> GetPagedAsync(TechnologyFilterDto technologyFilterDto,
@@ -29,23 +33,30 @@ public class TechnologyService : ITechnologyService
         return technologies.Select(t => t.ToDto()).ToList();
     }
 
-    public async Task<TechnologyDto> CreateAsync(CreateTechnologyDto createTechnologyDto,
+    public async Task<Result<TechnologyDto>> CreateAsync(CreateTechnologyDto createTechnologyDto,
         CancellationToken cancellationToken)
     {
-        await CheckTechnologyIdentityPropertiesAsync(null, createTechnologyDto.Name, cancellationToken);
+        var checkResult =
+            await CheckTechnologyIdentityPropertiesAsync(null, createTechnologyDto.Name, cancellationToken);
+        if (checkResult.IsFailed)
+            return Result.Fail<TechnologyDto>(checkResult.Errors);
 
         var technology = await _technologyRepository.AddAsync(createTechnologyDto.ToTechnology(), cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return technology.ToDto();
+        return Result.Ok(technology.ToDto());
     }
 
-    public async Task UpdateAsync(UpdateTechnologyDto updateTechnologyDto, CancellationToken cancellationToken)
+    public async Task<Result> UpdateAsync(UpdateTechnologyDto updateTechnologyDto, CancellationToken cancellationToken)
     {
-        await CheckTechnologyIdentityPropertiesAsync(updateTechnologyDto.Id, updateTechnologyDto.Name,
+        var checkResult = await CheckTechnologyIdentityPropertiesAsync(updateTechnologyDto.Id, updateTechnologyDto.Name,
             cancellationToken);
+        if (checkResult.IsFailed)
+            return checkResult;
 
-        var technology = await _technologyRepository.GetOrThrowAsync(updateTechnologyDto.Id, cancellationToken);
+        var technology = await _technologyRepository.GetAsync(updateTechnologyDto.Id, cancellationToken);
+        if (technology is null)
+            return Result.Fail(ErrorsFactory.NotFound(nameof(technology), updateTechnologyDto.Id));
 
         var isNeedToUpdate = false;
 
@@ -67,6 +78,8 @@ public class TechnologyService : ITechnologyService
             _technologyRepository.Update(technology);
             await _unitOfWork.CommitAsync(cancellationToken);
         }
+
+        return Result.Ok();
     }
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
@@ -79,16 +92,22 @@ public class TechnologyService : ITechnologyService
         }
     }
 
-    private async Task CheckTechnologyIdentityPropertiesAsync(long? excludeId, string? name,
+    private async Task<Result> CheckTechnologyIdentityPropertiesAsync(long? excludeId, string? name,
         CancellationToken cancellationToken)
     {
         if (name is not null)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return Result.Fail(ErrorsFactory.Required(nameof(Technology), nameof(name)));
+            }
+
             var isNameExists = await _technologyRepository.NameExistsAsync(name, excludeId, cancellationToken);
             if (isNameExists)
             {
-                throw new BusinessRuleViolationException($"Technology with name '{name}' already exists.");
+                return Result.Fail(ErrorsFactory.AlreadyExists(nameof(Technology), nameof(name), name));
             }
         }
+        return Result.Ok();
     }
 }
