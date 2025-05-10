@@ -1,4 +1,5 @@
-﻿using InterviewTrainer.Application.Abstractions.Repositories;
+﻿using InterviewTrainer.Domain.Entities;
+using InterviewTrainer.Application.Abstractions.Repositories;
 using InterviewTrainer.Application.Abstractions.Services;
 using InterviewTrainer.Application.Contracts.Questions;
 using InterviewTrainer.Application.Implementations.Errors;
@@ -21,7 +22,7 @@ public class QuestionService : IQuestionService
     {
         var question = await _questionRepository.GetAsync(id, cancellationToken);
         return question is null
-            ? Result.Fail<QuestionDto>(QuestionErrors.NotFound(id))
+            ? Result.Fail<QuestionDto>(ErrorsFactory.NotFound(nameof(question), id))
             : Result.Ok(question.ToDto());
     }
 
@@ -75,7 +76,7 @@ public class QuestionService : IQuestionService
         var question = await _questionRepository.GetAsync(updateQuestionDto.Id, cancellationToken);
         
         if (question is null)
-            return Result.Fail(QuestionErrors.NotFound(updateQuestionDto.Id));
+            return Result.Fail(ErrorsFactory.NotFound(nameof(question), updateQuestionDto.Id));
 
         var isNeedUpdate = false;
 
@@ -141,7 +142,7 @@ public class QuestionService : IQuestionService
     {
         if (text is not null && string.IsNullOrWhiteSpace(text))
         {
-            return Result.Fail(QuestionErrors.EmptyQuestionText());
+            return Result.Fail(ErrorsFactory.Required(nameof(Question), nameof(text)));
         }
 
         return Result.Ok();

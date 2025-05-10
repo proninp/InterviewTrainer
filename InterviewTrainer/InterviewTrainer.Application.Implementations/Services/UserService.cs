@@ -1,4 +1,5 @@
-﻿using InterviewTrainer.Application.Abstractions.Repositories;
+﻿using InterviewTrainer.Domain.Entities;
+using InterviewTrainer.Application.Abstractions.Repositories;
 using InterviewTrainer.Application.Abstractions.Services;
 using InterviewTrainer.Application.Contracts.Users;
 using InterviewTrainer.Application.Implementations.Errors;
@@ -21,7 +22,7 @@ public class UserService : IUserService
     {
         var user = await _userRepository.GetAsync(id, cancellationToken);
         return user is null
-            ? Result.Fail<UserDto>(UserErrors.NotFound(id))
+            ? Result.Fail<UserDto>(ErrorsFactory.NotFound(nameof(user), id))
             : Result.Ok(user.ToDto());
     }
 
@@ -50,7 +51,7 @@ public class UserService : IUserService
         var user = await _userRepository.GetAsync(updateUserDto.Id, cancellationToken);
         
         if (user is null)
-            return Result.Fail(UserErrors.NotFound(updateUserDto.Id));
+            return Result.Fail(ErrorsFactory.NotFound(nameof(user), updateUserDto.Id));
         
         var checkResult = 
             await CheckUserIdentityPropertiesAsync(updateUserDto.Id, updateUserDto.TelegramId, updateUserDto.Email,
@@ -112,7 +113,7 @@ public class UserService : IUserService
                 await _userRepository.ExistsByTelegramIdAsync(telegramId.Value, excludeId, cancellationToken);
             if (isUserAlreadyExists)
             {
-                return Result.Fail(UserErrors.TelegramIdAlreadyExists(telegramId.Value));
+                return Result.Fail(ErrorsFactory.AlreadyExists(nameof(User), nameof(telegramId), telegramId.Value));
             }
         }
 
@@ -122,7 +123,7 @@ public class UserService : IUserService
                 await _userRepository.ExistsByEmailAsync(email, excludeId, cancellationToken);
             if (isUserAlreadyExists)
             {
-                return Result.Fail(UserErrors.EmailAlreadyExists(email));
+                return Result.Fail(ErrorsFactory.AlreadyExists(nameof(User), nameof(email), email));
             }
         }
         return Result.Ok();

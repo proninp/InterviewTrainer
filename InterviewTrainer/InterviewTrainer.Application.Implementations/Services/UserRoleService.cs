@@ -24,7 +24,7 @@ public class UserRoleService : IUserRoleService
     {
         var user = await _userRepository.GetAsync(userId, cancellationToken);
         return user is null 
-            ? Result.Fail<bool>(UserErrors.NotFound(userId))
+            ? Result.Fail<bool>(ErrorsFactory.NotFound(nameof(user), userId))
             : Result.Ok(user.UserRoles.Any(ur => ur.RoleId == roleId));
     }
 
@@ -38,7 +38,7 @@ public class UserRoleService : IUserRoleService
     {
         var user = await _userRepository.GetAsync(userId, cancellationToken);
         if (user is null)
-            return Result.Fail<UserDto>(UserErrors.NotFound(userId));
+            return Result.Fail<UserDto>(ErrorsFactory.NotFound(nameof(user), userId));
 
         if (user.UserRoles.Any(ur => ur.RoleId == roleId))
         {
@@ -47,7 +47,7 @@ public class UserRoleService : IUserRoleService
 
         var role = await _roleRepository.GetAsync(roleId, cancellationToken);
         if (role is null)
-            return Result.Fail(RoleErrors.NotFound(roleId));
+            return Result.Fail(ErrorsFactory.NotFound(nameof(role), roleId));
         
         var userRole = new UserRole(userId, roleId);
         
@@ -62,7 +62,7 @@ public class UserRoleService : IUserRoleService
     {
         var user = await _userRepository.GetAsync(userId, cancellationToken);
         if (user is null)
-            return Result.Fail<UserDto>(UserErrors.NotFound(userId));
+            return Result.Fail<UserDto>(ErrorsFactory.NotFound(nameof(user), userId));
         
         var userRole = user.UserRoles.FirstOrDefault(ur => ur.RoleId == roleId);
         if (userRole is null)

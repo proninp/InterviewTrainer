@@ -1,4 +1,5 @@
-﻿using InterviewTrainer.Application.Abstractions.Repositories;
+﻿using InterviewTrainer.Domain.Entities;
+using InterviewTrainer.Application.Abstractions.Repositories;
 using InterviewTrainer.Application.Abstractions.Services;
 using InterviewTrainer.Application.Contracts.Roles;
 using InterviewTrainer.Application.Implementations.Errors;
@@ -21,7 +22,7 @@ public class RoleService : IRoleService
     {
         var role = await _roleRepository.GetAsync(id, cancellationToken);
         return role is null
-            ? Result.Fail<RoleDto>(RoleErrors.NotFound(id))
+            ? Result.Fail<RoleDto>(ErrorsFactory.NotFound(nameof(role), id))
             : Result.Ok(role.ToDto());
     }
 
@@ -52,14 +53,10 @@ public class RoleService : IRoleService
 
     public async Task<Result> UpdateAsync(UpdateRoleDto updateRoleDto, CancellationToken cancellationToken)
     {
-        if (updateRoleDto.Name is not null && string.IsNullOrWhiteSpace(updateRoleDto.Name))
-        {
-            return Result.Fail(RoleErrors.RoleNameEmpty());
-        }
         var role = await _roleRepository.GetAsync(updateRoleDto.Id, cancellationToken);
         if (role is null)
         {
-            return Result.Fail(RoleErrors.NotFound(updateRoleDto.Id));
+            return Result.Fail(ErrorsFactory.NotFound(nameof(role), updateRoleDto.Id));
         }
         
         var checkResult = await CheckRoleIdentityPropertiesAsync(updateRoleDto.Id, updateRoleDto.Name, cancellationToken);
@@ -107,10 +104,15 @@ public class RoleService : IRoleService
     {
         if (name is not null)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return Result.Fail(ErrorsFactory.Required(nameof(Role), nameof(name)));
+            }
+            
             var isNameAlreadyExists = await _roleRepository.ExistsByNameAsync(name, excludeId, cancellationToken);
             if (isNameAlreadyExists)
             {
-                return Result.Fail(RoleErrors.RoleNameAlreadyExists(name));
+                return Result.Fail(ErrorsFactory.AlreadyExists(nameof(Role), nameof(name), name));
             }
         }
 
