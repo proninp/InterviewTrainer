@@ -1,7 +1,9 @@
-﻿using InterviewTrainer.Application.Abstractions.Repositories;
+﻿using InterviewTrainer.Domain.Entities;
+using InterviewTrainer.Application.Abstractions.Repositories;
 using InterviewTrainer.Application.Abstractions.Services;
 using InterviewTrainer.Application.Contracts.Topics;
-using InterviewTrainer.Application.Implementations.Exceptions;
+using InterviewTrainer.Application.Implementations.Errors;
+using FluentResults;
 
 namespace InterviewTrainer.Application.Implementations.Services;
 
@@ -16,10 +18,12 @@ public class TopicService : ITopicService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<TopicDto> GetByIdAsync(long id, CancellationToken cancellationToken)
+    public async Task<Result<TopicDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var topic = await _topicRepository.GetOrThrowAsync(id, cancellationToken);
-        return topic.ToDto();
+        var topic = await _topicRepository.GetAsync(id, cancellationToken);
+        return topic is null 
+            ? Result.Fail<TopicDto>(ErrorsFactory.NotFound(nameof(topic), id)) 
+            : Result.Ok(topic.ToDto());
     }
 
     public async Task<List<TopicDto>> GetPagedAsync(TopicFilterDto topicFilterDto, CancellationToken cancellationToken)
@@ -28,22 +32,30 @@ public class TopicService : ITopicService
         return topics.Select(t => t.ToDto()).ToList();
     }
 
-    public async Task<TopicDto> CreateAsync(CreateTopicDto createTopicDto, CancellationToken cancellationToken)
+    public async Task<Result<TopicDto>> CreateAsync(CreateTopicDto createTopicDto, CancellationToken cancellationToken)
     {
-        await CheckTopicIdentityPropertiesAsync(null, createTopicDto.Name, cancellationToken);
+        var checkResult = await CheckTopicIdentityPropertiesAsync(null, createTopicDto.Name, cancellationToken);
+        if (checkResult.IsFailed)
+            return Result.Fail<TopicDto>(checkResult.Errors);
 
         var topic = await _topicRepository.AddAsync(createTopicDto.ToTopic(), cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return topic.ToDto();
+        return Result.Ok(topic.ToDto());
     }
 
-    public async Task UpdateAsync(UpdateTopicDto updateTopicDto, CancellationToken cancellationToken)
+    public async Task<Result> UpdateAsync(UpdateTopicDto updateTopicDto, CancellationToken cancellationToken)
     {
-        await CheckTopicIdentityPropertiesAsync(updateTopicDto.Id, updateTopicDto.Name, cancellationToken);
-
+        var checkResult = await CheckTopicIdentityPropertiesAsync(updateTopicDto.Id, updateTopicDto.Name, cancellationToken);
+        if (checkResult.IsFailed)
+            return checkResult;
+        
+        var topic = await _topicRepository.GetAsync(updateTopicDto.Id, cancellationToken);
+        if (topic is null)
+            return Result.Fail(ErrorsFactory.NotFound(nameof(topic), updateTopicDto.Id));
+        
         var isNeedUpdate = false;
-        var topic = await _topicRepository.GetOrThrowAsync(updateTopicDto.Id, cancellationToken);
+        
         if (updateTopicDto.Name is not null &&
             !string.Equals(updateTopicDto.Name, topic.Name, StringComparison.OrdinalIgnoreCase))
         {
@@ -62,6 +74,7 @@ public class TopicService : ITopicService
             _topicRepository.Update(topic);
             await _unitOfWork.CommitAsync(cancellationToken);
         }
+        return Result.Ok();
     }
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
@@ -74,16 +87,20 @@ public class TopicService : ITopicService
         }
     }
 
-    private async Task CheckTopicIdentityPropertiesAsync(long? excludeId, string? name,
+    private async Task<Result> CheckTopicIdentityPropertiesAsync(long? excludeId, string? name,
         CancellationToken cancellationToken)
     {
         if (name is not null)
         {
+            if (string.IsNullOrWhiteSpace(name))
+                return Result.Fail(ErrorsFactory.Required(nameof(Topic), nameof(name)));
+            
             var isTopicAlreadyExists = await _topicRepository.ExistsByNameAsync(name, excludeId, cancellationToken);
             if (isTopicAlreadyExists)
             {
-                throw new BusinessRuleViolationException($"Topic with Name '{name}' already exists");
+                return Result.Fail(ErrorsFactory.AlreadyExists(nameof(Topic), nameof(name), name));
             }
         }
+        return Result.Ok();
     }
 }

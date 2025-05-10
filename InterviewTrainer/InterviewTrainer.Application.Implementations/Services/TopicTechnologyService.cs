@@ -3,6 +3,8 @@ using InterviewTrainer.Application.Abstractions.Repositories;
 using InterviewTrainer.Application.Abstractions.Services;
 using InterviewTrainer.Application.Contracts.Technologies;
 using InterviewTrainer.Application.Contracts.Topics;
+using FluentResults;
+using InterviewTrainer.Application.Implementations.Errors;
 
 namespace InterviewTrainer.Application.Implementations.Services;
 
@@ -27,16 +29,20 @@ public class TopicTechnologyService : ITopicTechnologyService
         return topics.Select(t => t.ToDto()).ToList();
     }
 
-    public async Task<TechnologyDto> AddTopicAsync(long technologyId, long topicId, CancellationToken cancellationToken)
+    public async Task<Result<TechnologyDto>> AddTopicAsync(long technologyId, long topicId, CancellationToken cancellationToken)
     {
-        var technology = await _technologyRepository.GetOrThrowAsync(technologyId, cancellationToken);
+        var technology = await _technologyRepository.GetAsync(technologyId, cancellationToken);
+        if (technology is null)
+            return Result.Fail<TechnologyDto>(ErrorsFactory.NotFound(nameof(technology), technologyId));
 
         if (technology.TopicTechnologies.Any(tt => tt.TopicId == topicId))
         {
             return technology.ToDto();
         }
 
-        _ = await _topicRepository.GetOrThrowAsync(topicId, cancellationToken);
+        var topic = await _topicRepository.GetAsync(topicId, cancellationToken);
+        if (topic is null)
+            return Result.Fail<TechnologyDto>(ErrorsFactory.NotFound(nameof(topic), topicId));
 
         var topicTechnology = new TopicTechnology(technologyId, topicId);
 
@@ -44,24 +50,27 @@ public class TopicTechnologyService : ITopicTechnologyService
         _technologyRepository.Update(technology);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return technology.ToDto();
+        return Result.Ok(technology.ToDto());
     }
 
-    public async Task<TechnologyDto> RemoveTopicAsync(long technologyId, long topicId,
+    public async Task<Result<TechnologyDto>> RemoveTopicAsync(long technologyId, long topicId,
         CancellationToken cancellationToken)
     {
-        var technology = await _technologyRepository.GetOrThrowAsync(technologyId, cancellationToken);
+        var technology = await _technologyRepository.GetAsync(technologyId, cancellationToken);
+        if (technology is null)
+            return Result.Fail<TechnologyDto>(ErrorsFactory.NotFound(nameof(technology), technologyId));
+        
         var topicTechnology = technology.TopicTechnologies.FirstOrDefault(tt => tt.TopicId == topicId);
-
+        
         if (topicTechnology is null)
         {
-            return technology.ToDto();
+            return Result.Ok(technology.ToDto());
         }
 
         technology.TopicTechnologies.Remove(topicTechnology);
         _technologyRepository.Update(technology);
         await _unitOfWork.CommitAsync(cancellationToken);
 
-        return technology.ToDto();
+        return Result.Ok(technology.ToDto());
     }
 }
