@@ -1,20 +1,21 @@
-﻿using InterviewTrainer.Application.Contracts.Questions;
+﻿using FluentResults;
+using InterviewTrainer.Application.Contracts.Questions;
 
 namespace InterviewTrainer.Application.Abstractions.Services;
 
 public interface IQuestionService
 {
-    Task<QuestionDto> GetByIdAsync(long id, CancellationToken cancellationToken);
+    Task<Result<QuestionDto>> GetByIdAsync(long id, CancellationToken cancellationToken);
     
     Task<List<QuestionDto>> GetPagedAsync(
         QuestionFilterDto questionFilterDto, CancellationToken cancellationToken);
     
-    Task<QuestionDto> GetRandomAsync(
+    Task<Result<QuestionDto>> GetRandomAsync(
         QuestionFilterDto questionFilterDto, CancellationToken cancellationToken);
     
-    Task<QuestionDto> CreateAsync(CreateQuestionDto createQuestionDto, CancellationToken cancellationToken);
+    Task<Result<QuestionDto>> CreateAsync(CreateQuestionDto createQuestionDto, CancellationToken cancellationToken);
     
-    Task UpdateAsync(UpdateQuestionDto updateQuestionDto, CancellationToken cancellationToken);
+    Task<Result> UpdateAsync(UpdateQuestionDto updateQuestionDto, CancellationToken cancellationToken);
     
     Task DeleteAsync(long id, CancellationToken cancellationToken);
 }
