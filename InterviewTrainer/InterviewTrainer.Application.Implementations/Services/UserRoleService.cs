@@ -2,6 +2,8 @@
 using InterviewTrainer.Application.Abstractions.Repositories;
 using InterviewTrainer.Application.Abstractions.Services;
 using InterviewTrainer.Application.Contracts.Users;
+using InterviewTrainer.Application.Implementations.Errors;
+using FluentResults;
 
 namespace InterviewTrainer.Application.Implementations.Services;
 
@@ -18,10 +20,12 @@ public class UserRoleService : IUserRoleService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<bool> CheckUserRoleExistsAsync(long userId, long roleId, CancellationToken cancellationToken)
+    public async Task<Result<bool>> CheckUserRoleExistsAsync(long userId, long roleId, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetOrThrowAsync(userId, cancellationToken);
-        return user.UserRoles.Any(ur => ur.RoleId == roleId);
+        var user = await _userRepository.GetAsync(userId, cancellationToken);
+        return user is null 
+            ? Result.Fail<bool>(UserErrors.NotFound(userId))
+            : Result.Ok(user.UserRoles.Any(ur => ur.RoleId == roleId));
     }
 
     public async Task<List<UserDto>> GetUsersByRollNameAsync(string roleName, CancellationToken cancellationToken)
@@ -30,16 +34,20 @@ public class UserRoleService : IUserRoleService
         return users.Select(u => u.ToDto()).ToList();
     }
 
-    public async Task<UserDto> AddUserRoleAsync(long userId, long roleId, CancellationToken cancellationToken)
+    public async Task<Result<UserDto>> AddUserRoleAsync(long userId, long roleId, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetOrThrowAsync(userId, cancellationToken);
+        var user = await _userRepository.GetAsync(userId, cancellationToken);
+        if (user is null)
+            return Result.Fail<UserDto>(UserErrors.NotFound(userId));
 
         if (user.UserRoles.Any(ur => ur.RoleId == roleId))
         {
-            return user.ToDto();
+            return Result.Ok(user.ToDto());
         }
 
-        _ = await _roleRepository.GetOrThrowAsync(roleId, cancellationToken);
+        var role = await _roleRepository.GetAsync(roleId, cancellationToken);
+        if (role is null)
+            return Result.Fail(RoleErrors.NotFound(roleId));
         
         var userRole = new UserRole(userId, roleId);
         
@@ -47,23 +55,25 @@ public class UserRoleService : IUserRoleService
         _userRepository.Update(user);
         await _unitOfWork.CommitAsync(cancellationToken);
         
-        return user.ToDto();
+        return Result.Ok(user.ToDto());
     }
 
-    public async Task<UserDto> RemoveUserRoleAsync(long userId, long roleId, CancellationToken cancellationToken)
+    public async Task<Result<UserDto>> RemoveUserRoleAsync(long userId, long roleId, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetOrThrowAsync(userId, cancellationToken);
-
+        var user = await _userRepository.GetAsync(userId, cancellationToken);
+        if (user is null)
+            return Result.Fail<UserDto>(UserErrors.NotFound(userId));
+        
         var userRole = user.UserRoles.FirstOrDefault(ur => ur.RoleId == roleId);
         if (userRole is null)
         {
-            return user.ToDto();
+            return Result.Ok(user.ToDto());
         }
 
         user.UserRoles.Remove(userRole);
         _userRepository.Update(user);
         await _unitOfWork.CommitAsync(cancellationToken);
         
-        return user.ToDto();
+        return Result.Ok(user.ToDto());
     }
 }
