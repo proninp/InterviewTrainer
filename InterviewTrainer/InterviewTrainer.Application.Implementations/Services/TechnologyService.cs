@@ -84,12 +84,7 @@ public class TechnologyService : ITechnologyService
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        var technology = await _technologyRepository.GetAsync(id, cancellationToken);
-        if (technology is not null)
-        {
-            _technologyRepository.Delete(technology);
-            await _unitOfWork.CommitAsync(cancellationToken);
-        }
+        await _technologyRepository.TryDeleteAsync(id, cancellationToken);
     }
 
     private async Task<Result> CheckTechnologyIdentityPropertiesAsync(long? excludeId, string? name,

@@ -89,11 +89,6 @@ public class SuggestedAnswerService : ISuggestedAnswerService
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        var sa = await _suggestedAnswerRepository.GetAsync(id, cancellationToken);
-        if (sa is not null)
-        {
-            _suggestedAnswerRepository.Delete(sa);
-            await _unitOfWork.CommitAsync(cancellationToken);
-        }
+        await _suggestedAnswerRepository.TryDeleteAsync(id, cancellationToken);
     }
 }

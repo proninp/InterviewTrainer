@@ -72,12 +72,7 @@ public class TagService : ITagService
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        var tag = await _tagRepository.GetAsync(id, cancellationToken);
-        if (tag is not null)
-        {
-            _tagRepository.Delete(tag);
-            await _unitOfWork.CommitAsync(cancellationToken);
-        }
+        await _tagRepository.TryDeleteAsync(id, cancellationToken);
     }
     
     private async Task<Result> CheckTagIdentityPropertiesAsync(long? excludeId, string? name, CancellationToken cancellationToken)

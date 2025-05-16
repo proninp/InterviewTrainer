@@ -93,12 +93,7 @@ public class UserService : IUserService
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetAsync(id, cancellationToken);
-        if (user is not null)
-        {
-            _userRepository.Delete(user);
-            await _unitOfWork.CommitAsync(cancellationToken);
-        }
+        await _userRepository.TryDeleteAsync(id, cancellationToken);
     }
 
     private async Task<Result> CheckUserIdentityPropertiesAsync(long? excludeId, long? telegramId,

@@ -13,7 +13,5 @@ public interface IRepository<T>
     
     void Update(T entity);
     
-    bool Delete(long id);
-    
-    bool Delete(T entity);
+    Task<bool> TryDeleteAsync(long id, CancellationToken cancellationToken);
 }

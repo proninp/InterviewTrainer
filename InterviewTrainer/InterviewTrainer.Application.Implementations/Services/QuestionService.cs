@@ -128,12 +128,7 @@ public class QuestionService : IQuestionService
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        var question = await _questionRepository.GetAsync(id, cancellationToken);
-        if (question is not null)
-        {
-            _questionRepository.Delete(question);
-            await _unitOfWork.CommitAsync(cancellationToken);
-        }
+        await _questionRepository.TryDeleteAsync(id, cancellationToken);
     }
 
     private Result CheckQuestionIdentityPropertiesAsync(long? excludeId, string? text, string? answer,
