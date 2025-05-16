@@ -6,6 +6,7 @@ public record QuestionFilterDto(
     int ItemsPerPage,
     int Page,
     long? TopicId = null,
+    long? AuthorId = null,
     Difficulty? Difficulty = null,
     QuestionStatus? Status = null,
     string? Text = null,

@@ -5,6 +5,7 @@ namespace InterviewTrainer.Application.Contracts.Questions;
 
 public record CreateQuestionDto(
     long TopicId,
+    long AuthorId,
     Difficulty Difficulty,
     string Text,
     string? Answer = null,
@@ -16,6 +17,7 @@ public record CreateQuestionDto(
 public static class CreateQuestionDtoExtension
 {
     public static Question ToQuestion(this CreateQuestionDto createQuestionDto) =>
-        new(createQuestionDto.TopicId, createQuestionDto.Difficulty, createQuestionDto.Status,
+        new(createQuestionDto.TopicId, createQuestionDto.AuthorId,
+            createQuestionDto.Difficulty, createQuestionDto.Status,
             createQuestionDto.Text, createQuestionDto.Answer, createQuestionDto.Archived);
 }

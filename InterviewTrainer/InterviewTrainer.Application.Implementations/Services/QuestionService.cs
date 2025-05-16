@@ -53,8 +53,8 @@ public class QuestionService : IQuestionService
     public async Task<Result<QuestionDto>> CreateAsync(CreateQuestionDto createQuestionDto,
         CancellationToken cancellationToken)
     {
-        var checkResult = CheckQuestionIdentityPropertiesAsync(null, createQuestionDto.Text, createQuestionDto.Answer,
-            cancellationToken);
+        var checkResult = CheckQuestionIdentityPropertiesAsync(
+            null, createQuestionDto.Text, createQuestionDto.Answer, cancellationToken);
         if (checkResult.IsFailed)
             return Result.Fail<QuestionDto>(checkResult.Errors);
 
@@ -111,8 +111,7 @@ public class QuestionService : IQuestionService
             question.Answer = updateQuestionDto.Answer;
             isNeedUpdate = true;
         }
-
-
+        
         if (updateQuestionDto.Archived is not null && updateQuestionDto.Archived.Value != question.Archived)
         {
             question.Archived = updateQuestionDto.Archived.Value;
