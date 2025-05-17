@@ -20,7 +20,7 @@ public class TechnologyService : ITechnologyService
 
     public async Task<Result<TechnologyDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var technology = await _technologyRepository.GetAsync(id, cancellationToken);
+        var technology = await _technologyRepository.GetAsync(id, cancellationToken, asNoTracking: true);
         return technology is null
             ? Result.Fail<TechnologyDto>(ErrorsFactory.NotFound(nameof(technology), id))
             : Result.Ok(technology.ToDto());

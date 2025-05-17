@@ -20,7 +20,7 @@ public class RoleService : IRoleService
 
     public async Task<Result<RoleDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var role = await _roleRepository.GetAsync(id, cancellationToken);
+        var role = await _roleRepository.GetAsync(id, cancellationToken, asNoTracking: true);
         return role is null
             ? Result.Fail<RoleDto>(ErrorsFactory.NotFound(nameof(role), id))
             : Result.Ok(role.ToDto());

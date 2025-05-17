@@ -20,10 +20,10 @@ public class TagService : ITagService
 
     public async Task<Result<TagDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var tag = await _tagRepository.GetAsync(id, cancellationToken);
-        return tag is null
-        ? Result.Fail<TagDto>(ErrorsFactory.NotFound(nameof(tag), id))
-        : Result.Ok(tag.ToDto());
+        var tag = await _tagRepository.GetAsync(id, cancellationToken, asNoTracking: true);
+        return tag is null 
+            ? Result.Fail<TagDto>(ErrorsFactory.NotFound(nameof(tag), id)) 
+            : Result.Ok(tag.ToDto());
     }
 
     public async Task<List<TagDto>> GetPagedAsync(TagFilterDto tagFilterDto, CancellationToken cancellationToken)

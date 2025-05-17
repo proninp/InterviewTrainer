@@ -20,7 +20,8 @@ public class QuestionService : IQuestionService
 
     public async Task<Result<QuestionDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var question = await _questionRepository.GetAsync(id, cancellationToken);
+        var question =
+            await _questionRepository.GetAsync(id, cancellationToken, asNoTracking: true);
         return question is null
             ? Result.Fail<QuestionDto>(ErrorsFactory.NotFound(nameof(question), id))
             : Result.Ok(question.ToDto());
@@ -54,7 +55,7 @@ public class QuestionService : IQuestionService
         CancellationToken cancellationToken)
     {
         var checkResult = CheckQuestionIdentityPropertiesAsync(
-            null, createQuestionDto.Text, createQuestionDto.Answer, cancellationToken);
+            null, createQuestionDto.Text, createQuestionDto.Answer);
         if (checkResult.IsFailed)
             return Result.Fail<QuestionDto>(checkResult.Errors);
 
@@ -67,14 +68,13 @@ public class QuestionService : IQuestionService
     public async Task<Result> UpdateAsync(UpdateQuestionDto updateQuestionDto, CancellationToken cancellationToken)
     {
         var checkResult = CheckQuestionIdentityPropertiesAsync(updateQuestionDto.Id, updateQuestionDto.Text,
-            updateQuestionDto.Answer,
-            cancellationToken);
-        
+            updateQuestionDto.Answer);
+
         if (checkResult.IsFailed)
             return checkResult;
 
         var question = await _questionRepository.GetAsync(updateQuestionDto.Id, cancellationToken);
-        
+
         if (question is null)
             return Result.Fail(ErrorsFactory.NotFound(nameof(question), updateQuestionDto.Id));
 
@@ -82,6 +82,7 @@ public class QuestionService : IQuestionService
 
         if (updateQuestionDto.TopicId is not null && question.TopicId != updateQuestionDto.TopicId.Value)
         {
+            
             question.TopicId = updateQuestionDto.TopicId.Value;
             isNeedUpdate = true;
         }
@@ -111,7 +112,7 @@ public class QuestionService : IQuestionService
             question.Answer = updateQuestionDto.Answer;
             isNeedUpdate = true;
         }
-        
+
         if (updateQuestionDto.Archived is not null && updateQuestionDto.Archived.Value != question.Archived)
         {
             question.Archived = updateQuestionDto.Archived.Value;
@@ -123,6 +124,7 @@ public class QuestionService : IQuestionService
             _questionRepository.Update(question);
             await _unitOfWork.CommitAsync(cancellationToken);
         }
+
         return Result.Ok();
     }
 
@@ -131,8 +133,7 @@ public class QuestionService : IQuestionService
         await _questionRepository.TryDeleteAsync(id, cancellationToken);
     }
 
-    private Result CheckQuestionIdentityPropertiesAsync(long? excludeId, string? text, string? answer,
-        CancellationToken cancellationToken)
+    private Result CheckQuestionIdentityPropertiesAsync(long? excludeId, string? text, string? answer)
     {
         if (text is not null && string.IsNullOrWhiteSpace(text))
         {

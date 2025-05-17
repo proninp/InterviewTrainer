@@ -40,9 +40,9 @@ public class TopicTechnologyService : ITopicTechnologyService
             return technology.ToDto();
         }
 
-        var topic = await _topicRepository.GetAsync(topicId, cancellationToken);
-        if (topic is null)
-            return Result.Fail<TechnologyDto>(ErrorsFactory.NotFound(nameof(topic), topicId));
+        var isTopicExists = await _topicRepository.AnyAsync(topicId, cancellationToken);
+        if (!isTopicExists)
+            return Result.Fail<TechnologyDto>(ErrorsFactory.NotFound(nameof(Topic), topicId));
 
         var topicTechnology = new TopicTechnology(technologyId, topicId);
 

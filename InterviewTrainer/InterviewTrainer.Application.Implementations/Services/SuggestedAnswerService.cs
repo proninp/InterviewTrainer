@@ -3,6 +3,7 @@ using InterviewTrainer.Application.Abstractions.Services;
 using InterviewTrainer.Application.Contracts.SuggestedAnswers;
 using InterviewTrainer.Application.Implementations.Errors;
 using FluentResults;
+using InterviewTrainer.Domain.Entities;
 
 namespace InterviewTrainer.Application.Implementations.Services;
 
@@ -22,7 +23,7 @@ public class SuggestedAnswerService : ISuggestedAnswerService
 
     public async Task<Result<SuggestedAnswerDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var suggestedAnswer = await _suggestedAnswerRepository.GetAsync(id, cancellationToken);
+        var suggestedAnswer = await _suggestedAnswerRepository.GetAsync(id, cancellationToken, asNoTracking: true);
         return suggestedAnswer is null
             ? Result.Fail<SuggestedAnswerDto>(ErrorsFactory.NotFound(nameof(suggestedAnswer), id))
             : Result.Ok(suggestedAnswer.ToDto());
@@ -39,10 +40,9 @@ public class SuggestedAnswerService : ISuggestedAnswerService
     public async Task<Result<SuggestedAnswerDto>> CreateAsync(CreateSuggestedAnswerDto createSuggestedAnswerDto,
         CancellationToken cancellationToken)
     {
-        var question = await _questionRepository.GetAsync(createSuggestedAnswerDto.QuestionId, cancellationToken);
-        if (question is null)
-            Result.Fail<SuggestedAnswerDto>(ErrorsFactory.NotFound(nameof(question),
-                createSuggestedAnswerDto.QuestionId));
+        var checkResult = await CheckQuestionExists(createSuggestedAnswerDto.QuestionId, cancellationToken);
+        if (checkResult.IsFailed)
+            return Result.Fail<SuggestedAnswerDto>(checkResult.Errors);
         
         var sa = await _suggestedAnswerRepository.AddAsync(createSuggestedAnswerDto.ToSuggestedAnswer(), cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
@@ -54,10 +54,9 @@ public class SuggestedAnswerService : ISuggestedAnswerService
     {
         if (updateSuggestedAnswerDto.QuestionId is not null)
         { 
-            var question = await _questionRepository.GetAsync(updateSuggestedAnswerDto.QuestionId.Value, cancellationToken);
-            if (question is null)
-                Result.Fail<SuggestedAnswerDto>(ErrorsFactory.NotFound(nameof(question),
-                    updateSuggestedAnswerDto.QuestionId.Value));
+            var checkResult = await CheckQuestionExists(updateSuggestedAnswerDto.QuestionId.Value, cancellationToken);
+            if (checkResult.IsFailed)
+                return checkResult;
         }
         
         var suggestedAnswer = await _suggestedAnswerRepository.GetAsync(updateSuggestedAnswerDto.Id, cancellationToken);
@@ -90,5 +89,13 @@ public class SuggestedAnswerService : ISuggestedAnswerService
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
         await _suggestedAnswerRepository.TryDeleteAsync(id, cancellationToken);
+    }
+
+    private async Task<Result> CheckQuestionExists(long questionId, CancellationToken cancellationToken)
+    {
+        var isQuestionExists = await _questionRepository.AnyAsync(questionId, cancellationToken);
+        if (!isQuestionExists)
+            Result.Fail<SuggestedAnswerDto>(ErrorsFactory.NotFound(nameof(Question), questionId));
+        return Result.Ok();
     }
 }

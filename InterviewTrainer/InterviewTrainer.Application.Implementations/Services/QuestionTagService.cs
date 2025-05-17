@@ -40,9 +40,9 @@ public class QuestionTagService : IQuestionTagService
             return Result.Ok(question.ToDto());
         }
 
-        var tag = await _tagRepository.GetAsync(tagId, cancellationToken);
-        if (tag is null)
-            return Result.Fail<QuestionDto>(ErrorsFactory.NotFound(nameof(tag), tagId));
+        var tagExists = await _tagRepository.AnyAsync(tagId, cancellationToken);
+        if (!tagExists)
+            return Result.Fail<QuestionDto>(ErrorsFactory.NotFound(nameof(Tag), tagId));
 
         var questionTag = new QuestionTag(questionId, tagId);
 

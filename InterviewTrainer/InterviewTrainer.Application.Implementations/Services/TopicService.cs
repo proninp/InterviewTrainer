@@ -20,7 +20,7 @@ public class TopicService : ITopicService
 
     public async Task<Result<TopicDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var topic = await _topicRepository.GetAsync(id, cancellationToken);
+        var topic = await _topicRepository.GetAsync(id, cancellationToken, asNoTracking: true);
         return topic is null 
             ? Result.Fail<TopicDto>(ErrorsFactory.NotFound(nameof(topic), id)) 
             : Result.Ok(topic.ToDto());

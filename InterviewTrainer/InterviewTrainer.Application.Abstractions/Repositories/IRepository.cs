@@ -5,7 +5,9 @@ namespace InterviewTrainer.Application.Abstractions.Repositories;
 public interface IRepository<T> 
     where T : IdentityModel
 {
-    Task<T?> GetAsync(long id, CancellationToken cancellationToken);
+    Task<bool> AnyAsync(long id, CancellationToken cancellationToken);
+    
+    Task<T?> GetAsync(long id, CancellationToken cancellationToken, bool isInclude = true, bool asNoTracking = false);
     
     Task<T> AddAsync(T entity, CancellationToken cancellationToken);
     

@@ -20,7 +20,7 @@ public class UserService : IUserService
 
     public async Task<Result<UserDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetAsync(id, cancellationToken);
+        var user = await _userRepository.GetAsync(id, cancellationToken, asNoTracking: true);
         return user is null
             ? Result.Fail<UserDto>(ErrorsFactory.NotFound(nameof(user), id))
             : Result.Ok(user.ToDto());
