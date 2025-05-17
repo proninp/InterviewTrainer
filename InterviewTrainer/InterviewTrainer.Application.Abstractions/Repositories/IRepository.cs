@@ -1,4 +1,5 @@
-﻿using InterviewTrainer.Domain.Abstractions;
+﻿using System.Linq.Expressions;
+using InterviewTrainer.Domain.Abstractions;
 
 namespace InterviewTrainer.Application.Abstractions.Repositories;
 
@@ -14,6 +15,18 @@ public interface IRepository<T>
     Task AddRangeAsync(ICollection<T> entities, CancellationToken cancellationToken);
     
     void Update(T entity);
+    
+    void UpdatePartial(T entity, params Expression<Func<T, object>>[] properties);
+    
+    //public void UpdatePartial(Question question, params Expression<Func<Question, object>>[] updatedProperties)
+    // {
+    //     _dbContext.Questions.Attach(question);
+    //
+    //     foreach (var property in updatedProperties)
+    //     {
+    //         _dbContext.Entry(question).Property(property).IsModified = true;
+    //     }
+    // }
     
     Task<bool> TryDeleteAsync(long id, CancellationToken cancellationToken);
 }

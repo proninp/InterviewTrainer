@@ -1,4 +1,5 @@
-﻿using InterviewTrainer.Domain.Entities;
+﻿using System.Linq.Expressions;
+using InterviewTrainer.Domain.Entities;
 using InterviewTrainer.Application.Abstractions.Repositories;
 using InterviewTrainer.Application.Abstractions.Services;
 using InterviewTrainer.Application.Contracts.Questions;
@@ -73,29 +74,33 @@ public class QuestionService : IQuestionService
         if (checkResult.IsFailed)
             return checkResult;
 
-        var question = await _questionRepository.GetAsync(updateQuestionDto.Id, cancellationToken);
+        var question = await _questionRepository.GetAsync(updateQuestionDto.Id, cancellationToken, isInclude: false);
 
         if (question is null)
             return Result.Fail(ErrorsFactory.NotFound(nameof(question), updateQuestionDto.Id));
+
+        var updatedProperties = new List<Expression<Func<Question, object>>>();
 
         var isNeedUpdate = false;
 
         if (updateQuestionDto.TopicId is not null && question.TopicId != updateQuestionDto.TopicId.Value)
         {
-            
             question.TopicId = updateQuestionDto.TopicId.Value;
+            updatedProperties.Add(q => q.TopicId);
             isNeedUpdate = true;
         }
 
         if (updateQuestionDto.Difficulty is not null && question.Difficulty != updateQuestionDto.Difficulty.Value)
         {
             question.Difficulty = updateQuestionDto.Difficulty.Value;
+            updatedProperties.Add(q => q.Difficulty);
             isNeedUpdate = true;
         }
 
         if (updateQuestionDto.Status is not null && question.Status != updateQuestionDto.Status.Value)
         {
             question.Status = updateQuestionDto.Status.Value;
+            updatedProperties.Add(q => q.Status);
             isNeedUpdate = true;
         }
 
@@ -103,6 +108,7 @@ public class QuestionService : IQuestionService
                 StringComparison.InvariantCultureIgnoreCase))
         {
             question.Text = updateQuestionDto.Text;
+            updatedProperties.Add(q => q.Text);
             isNeedUpdate = true;
         }
 
@@ -110,18 +116,20 @@ public class QuestionService : IQuestionService
                 StringComparison.InvariantCultureIgnoreCase))
         {
             question.Answer = updateQuestionDto.Answer;
+            updatedProperties.Add(q => q.Answer!);
             isNeedUpdate = true;
         }
 
         if (updateQuestionDto.Archived is not null && updateQuestionDto.Archived.Value != question.Archived)
         {
             question.Archived = updateQuestionDto.Archived.Value;
+            updatedProperties.Add(q => q.Archived);
             isNeedUpdate = true;
         }
 
         if (isNeedUpdate)
         {
-            _questionRepository.Update(question);
+            _questionRepository.UpdatePartial(question, updatedProperties.ToArray());
             await _unitOfWork.CommitAsync(cancellationToken);
         }
 
