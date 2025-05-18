@@ -1,0 +1,15 @@
+services:
+  postgres_main:
+    image: postgres:latest
+    container_name: interview_trainer_db
+    environment:
+      POSTGRES_DB: interview_trainer
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5437:5432"
+    volumes:
+      - pgdata_main:/var/lib/postgresql/data
+    restart: on-failure:3
+volumes:
+  pgdata_main:
