@@ -10,6 +10,7 @@ public class TagConfiguration : IEntityTypeConfiguration<Tag>
     {
         builder.HasKey(t => t.Id);
         builder.Property(t => t.Name).IsRequired();
+        
         builder
             .HasMany(t => t.QuestionTags)
             .WithOne(qt => qt.Tag);

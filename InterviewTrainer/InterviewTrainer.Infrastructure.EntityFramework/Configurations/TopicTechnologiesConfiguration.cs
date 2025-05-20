@@ -12,6 +12,7 @@ public class TopicTechnologiesConfiguration : IEntityTypeConfiguration<TopicTech
         builder
             .HasOne(tt => tt.Technology)
             .WithMany(t => t.TopicTechnologies);
+        
         builder
             .HasOne(tt => tt.Topic)
             .WithMany(t => t.TopicTechnologies);

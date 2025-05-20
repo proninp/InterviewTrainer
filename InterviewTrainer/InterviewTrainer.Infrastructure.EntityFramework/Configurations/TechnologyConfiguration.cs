@@ -10,6 +10,7 @@ public class TechnologyConfiguration : IEntityTypeConfiguration<Technology>
     {
         builder.HasKey(t => t.Id);
         builder.Property(t => t.Name).IsRequired();
+        
         builder
             .HasMany(t => t.TopicTechnologies)
             .WithOne(tt => tt.Technology);

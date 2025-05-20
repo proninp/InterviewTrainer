@@ -10,6 +10,7 @@ public class TopicConfiguration : IEntityTypeConfiguration<Topic>
     {
         builder.HasKey(t => t.Id);
         builder.Property(t => t.Name).IsRequired();
+        
         builder
             .HasMany(t => t.TopicTechnologies)
             .WithOne(tt => tt.Topic);
