@@ -11,4 +11,10 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\InterviewTrainer.Application.Abstractions\InterviewTrainer.Application.Abstractions.csproj" />
+      <ProjectReference Include="..\InterviewTrainer.Application.Implementations\InterviewTrainer.Application.Implementations.csproj" />
+      <ProjectReference Include="..\InterviewTrainer.Infrastructure.EntityFramework\InterviewTrainer.Infrastructure.EntityFramework.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -1,6 +1,10 @@
+using InterviewTrainer.API;
+using InterviewTrainer.Infrastructure.EntityFramework;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddDatabase(builder.Configuration);
+builder.Services.AddServices();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
