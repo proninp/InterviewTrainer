@@ -20,7 +20,7 @@ public class RoleService : IRoleService
 
     public async Task<Result<RoleDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var role = await _roleRepository.GetAsync(id, cancellationToken, asNoTracking: true);
+        var role = await _roleRepository.GetAsync(id, cancellationToken, disableTracking: true);
         return role is null
             ? Result.Fail<RoleDto>(ErrorsFactory.NotFound(nameof(role), id))
             : Result.Ok(role.ToDto());
@@ -92,7 +92,8 @@ public class RoleService : IRoleService
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        await _roleRepository.TryDeleteAsync(id, cancellationToken);
+        _roleRepository.Delete(id);
+        await _unitOfWork.CommitAsync(cancellationToken);
     }
 
     private async Task<Result> CheckRoleIdentityPropertiesAsync(long? excludeId, string? name, CancellationToken cancellationToken)

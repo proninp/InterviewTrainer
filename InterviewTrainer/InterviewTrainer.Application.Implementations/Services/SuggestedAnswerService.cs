@@ -23,7 +23,7 @@ public class SuggestedAnswerService : ISuggestedAnswerService
 
     public async Task<Result<SuggestedAnswerDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var suggestedAnswer = await _suggestedAnswerRepository.GetAsync(id, cancellationToken, asNoTracking: true);
+        var suggestedAnswer = await _suggestedAnswerRepository.GetAsync(id, cancellationToken, disableTracking: true);
         return suggestedAnswer is null
             ? Result.Fail<SuggestedAnswerDto>(ErrorsFactory.NotFound(nameof(suggestedAnswer), id))
             : Result.Ok(suggestedAnswer.ToDto());
@@ -88,7 +88,8 @@ public class SuggestedAnswerService : ISuggestedAnswerService
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        await _suggestedAnswerRepository.TryDeleteAsync(id, cancellationToken);
+        _suggestedAnswerRepository.Delete(id);
+        await _unitOfWork.CommitAsync(cancellationToken);
     }
 
     private async Task<Result> CheckQuestionExists(long questionId, CancellationToken cancellationToken)

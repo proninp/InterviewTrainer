@@ -20,7 +20,7 @@ public class TechnologyService : ITechnologyService
 
     public async Task<Result<TechnologyDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var technology = await _technologyRepository.GetAsync(id, cancellationToken, asNoTracking: true);
+        var technology = await _technologyRepository.GetAsync(id, cancellationToken, disableTracking: true);
         return technology is null
             ? Result.Fail<TechnologyDto>(ErrorsFactory.NotFound(nameof(technology), id))
             : Result.Ok(technology.ToDto());
@@ -84,7 +84,8 @@ public class TechnologyService : ITechnologyService
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        await _technologyRepository.TryDeleteAsync(id, cancellationToken);
+        _technologyRepository.Delete(id);
+        await _unitOfWork.CommitAsync(cancellationToken);
     }
 
     private async Task<Result> CheckTechnologyIdentityPropertiesAsync(long? excludeId, string? name,

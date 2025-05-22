@@ -20,7 +20,7 @@ public class TopicService : ITopicService
 
     public async Task<Result<TopicDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var topic = await _topicRepository.GetAsync(id, cancellationToken, asNoTracking: true);
+        var topic = await _topicRepository.GetAsync(id, cancellationToken, disableTracking: true);
         return topic is null 
             ? Result.Fail<TopicDto>(ErrorsFactory.NotFound(nameof(topic), id)) 
             : Result.Ok(topic.ToDto());
@@ -79,7 +79,8 @@ public class TopicService : ITopicService
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        await _topicRepository.TryDeleteAsync(id, cancellationToken);
+        _topicRepository.Delete(id);
+        await _unitOfWork.CommitAsync(cancellationToken);
     }
 
     private async Task<Result> CheckTopicIdentityPropertiesAsync(long? excludeId, string? name,

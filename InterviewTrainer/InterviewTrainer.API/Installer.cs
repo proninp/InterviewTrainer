@@ -1,5 +1,7 @@
-﻿using InterviewTrainer.Application.Abstractions.Services;
+﻿using InterviewTrainer.Application.Abstractions.Repositories;
+using InterviewTrainer.Application.Abstractions.Services;
 using InterviewTrainer.Application.Implementations.Services;
+using InterviewTrainer.Infrastructure.Repositories;
 
 namespace InterviewTrainer.API;
 
@@ -33,6 +35,8 @@ public static class Installer
     
     private static IServiceCollection InstallRepositories(this IServiceCollection services)
     {
+        services
+            .AddScoped<ITechnologyRepository, TechnologyRepository>();
         return services;
     }
 }

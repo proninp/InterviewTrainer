@@ -2,11 +2,22 @@
 
 namespace InterviewTrainer.Domain.Entities;
 
-public class Technology(string name, bool archived = false) : IdentityModel
+public class Technology : IdentityModel
 {
-    public string Name { get; set; } = name;
+    public string Name { get; set; } = null!;
 
-    public bool Archived { get; set; } = archived;
+    public bool Archived { get; set; }
     
     public ICollection<TopicTechnology> TopicTechnologies { get; set; } = new List<TopicTechnology>();
+
+    public Technology()
+    {
+
+    }
+
+    public Technology(string name, bool archived = false)
+    {
+        Name = name;
+        Archived = archived;
+    }
 }

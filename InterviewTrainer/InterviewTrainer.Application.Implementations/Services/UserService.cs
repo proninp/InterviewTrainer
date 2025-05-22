@@ -20,7 +20,7 @@ public class UserService : IUserService
 
     public async Task<Result<UserDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetAsync(id, cancellationToken, asNoTracking: true);
+        var user = await _userRepository.GetAsync(id, cancellationToken, disableTracking: true);
         return user is null
             ? Result.Fail<UserDto>(ErrorsFactory.NotFound(nameof(user), id))
             : Result.Ok(user.ToDto());
@@ -93,7 +93,8 @@ public class UserService : IUserService
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        await _userRepository.TryDeleteAsync(id, cancellationToken);
+        _userRepository.Delete(id);
+        await _unitOfWork.CommitAsync(cancellationToken);
     }
 
     private async Task<Result> CheckUserIdentityPropertiesAsync(long? excludeId, long? telegramId,

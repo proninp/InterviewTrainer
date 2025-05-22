@@ -22,7 +22,7 @@ public class QuestionService : IQuestionService
     public async Task<Result<QuestionDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
         var question =
-            await _questionRepository.GetAsync(id, cancellationToken, asNoTracking: true);
+            await _questionRepository.GetAsync(id, cancellationToken, disableTracking: true);
         return question is null
             ? Result.Fail<QuestionDto>(ErrorsFactory.NotFound(nameof(question), id))
             : Result.Ok(question.ToDto());
@@ -74,7 +74,7 @@ public class QuestionService : IQuestionService
         if (checkResult.IsFailed)
             return checkResult;
 
-        var question = await _questionRepository.GetAsync(updateQuestionDto.Id, cancellationToken, isInclude: false);
+        var question = await _questionRepository.GetAsync(updateQuestionDto.Id, cancellationToken, includeRelated: false);
 
         if (question is null)
             return Result.Fail(ErrorsFactory.NotFound(nameof(question), updateQuestionDto.Id));
@@ -138,7 +138,8 @@ public class QuestionService : IQuestionService
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        await _questionRepository.TryDeleteAsync(id, cancellationToken);
+        _questionRepository.Delete(id);
+        await _unitOfWork.CommitAsync(cancellationToken);
     }
 
     private Result CheckQuestionIdentityPropertiesAsync(long? excludeId, string? text, string? answer)

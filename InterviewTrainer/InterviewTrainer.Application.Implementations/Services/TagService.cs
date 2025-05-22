@@ -20,7 +20,7 @@ public class TagService : ITagService
 
     public async Task<Result<TagDto>> GetByIdAsync(long id, CancellationToken cancellationToken)
     {
-        var tag = await _tagRepository.GetAsync(id, cancellationToken, asNoTracking: true);
+        var tag = await _tagRepository.GetAsync(id, cancellationToken, disableTracking: true);
         return tag is null 
             ? Result.Fail<TagDto>(ErrorsFactory.NotFound(nameof(tag), id)) 
             : Result.Ok(tag.ToDto());
@@ -72,7 +72,8 @@ public class TagService : ITagService
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        await _tagRepository.TryDeleteAsync(id, cancellationToken);
+        _tagRepository.Delete(id);
+        await _unitOfWork.CommitAsync(cancellationToken);
     }
     
     private async Task<Result> CheckTagIdentityPropertiesAsync(long? excludeId, string? name, CancellationToken cancellationToken)
