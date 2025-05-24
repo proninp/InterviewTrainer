@@ -36,6 +36,7 @@ public static class Installer
     private static IServiceCollection InstallRepositories(this IServiceCollection services)
     {
         services
+            .AddScoped<IUserRepository, UserRepository>()
             .AddScoped<ITechnologyRepository, TechnologyRepository>()
             .AddScoped<ITopicRepository, TopicRepository>();
         
