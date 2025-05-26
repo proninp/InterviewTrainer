@@ -28,18 +28,15 @@ public class TopicRepository : ITopicRepository
     public async Task<Topic?> GetAsync(long id, CancellationToken cancellationToken, bool includeRelated = true,
         bool disableTracking = false)
     {
-        if (!disableTracking && !includeRelated)
-        {
-            return await _topics.FindAsync(id, cancellationToken);
-        }
-
-        IQueryable<Topic> query = _topics;
-
+        var query = _topics.AsQueryable();
+        
         if (disableTracking)
-            query = query.AsNoTracking();
+            query = query.AsNoTrackingWithIdentityResolution();
 
         if (includeRelated)
-            query = query.Include(t => t.TopicTechnologies);
+            query = query
+                .Include(t => t.TopicTechnologies)
+                .ThenInclude(tt => tt.Technology);
 
         return await query.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
@@ -78,8 +75,13 @@ public class TopicRepository : ITopicRepository
 
     public async Task<bool> ExistsByNameAsync(string name, long? excludeTopicId, CancellationToken cancellationToken)
     {
-        return await _topics
-            .AsNoTracking()
+        var query = _topics.AsNoTracking();
+
+        if (excludeTopicId.HasValue)
+        {
+            query = query.Where(q => q.Id != excludeTopicId.Value);
+        }
+        return await query
             .AnyAsync(t => t.Name == name, cancellationToken);
     }
 
