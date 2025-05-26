@@ -28,20 +28,17 @@ public class UserRepository : IUserRepository
     public async Task<User?> GetAsync(long id, CancellationToken cancellationToken, bool includeRelated = true,
         bool disableTracking = false)
     {
-        if (!disableTracking && !includeRelated)
-        {
-            return await _users.FindAsync(id, cancellationToken);
-        }
-
-        IQueryable<User> query = _users;
+        var query = _users.AsQueryable();
 
         if (disableTracking)
-            query = query.AsNoTracking();
+            query = query.AsNoTrackingWithIdentityResolution();
 
         if (includeRelated)
-            query = query.Include(t => t.UserRoles);
+            query = query
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role);
 
-        return await query.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+        return await query.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
 
     public async Task<User> AddAsync(User entity, CancellationToken cancellationToken)
@@ -78,7 +75,7 @@ public class UserRepository : IUserRepository
 
     public async Task<IEnumerable<User>> GetPagedAsync(UserFilterDto filterDto, CancellationToken cancellationToken)
     {
-        var query = _users.AsQueryable();
+        var query = _users.AsNoTracking();
 
         if (filterDto.TelegramId is not null)
         {
@@ -97,8 +94,6 @@ public class UserRepository : IUserRepository
             query = query.Where(t => (t.Email != null) && t.Email.Contains(filterDto.Email));
         }
 
-        query = query.AsNoTracking();
-
         var skip = (filterDto.Page - 1) * filterDto.ItemsPerPage;
         query = query.Skip(skip).Take(filterDto.ItemsPerPage);
 
@@ -112,7 +107,27 @@ public class UserRepository : IUserRepository
         query = query
             .Include(u => u.UserRoles)
             .ThenInclude(ur => ur.Role)
-            .Where(u => u.UserRoles.Any(ur => string.Equals(ur.Role.Name, roleName, StringComparison.OrdinalIgnoreCase)));
+            .Where(u => u.UserRoles.Any(ur =>
+                string.Equals(ur.Role.Name, roleName, StringComparison.OrdinalIgnoreCase)));
+        return await query.ToListAsync(cancellationToken);
+    }
+    
+    public async Task<IEnumerable<User>> GetUsersWithEmptyEmail(CancellationToken cancellationToken,
+        bool includeRelated = true,
+        bool disableTracking = false)
+    {
+        var query = _users.AsQueryable();
+        
+        if (disableTracking)
+            query = query.AsNoTracking();
+        
+        if (includeRelated)
+            query = query
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role);
+
+        query = query
+            .Where(u => string.IsNullOrEmpty(u.Email));
         return await query.ToListAsync(cancellationToken);
     }
 
@@ -120,7 +135,7 @@ public class UserRepository : IUserRepository
         CancellationToken cancellationToken)
     {
         var query = _users.AsNoTracking();
-        if (excludeUserId is not null)
+        if (excludeUserId.HasValue)
             query = query.Where(u => u.Id != excludeUserId);
         return await query
             .AnyAsync(t => t.TelegramId != null && t.TelegramId == telegramId, cancellationToken);
@@ -129,10 +144,10 @@ public class UserRepository : IUserRepository
     public async Task<bool> ExistsByEmailAsync(string email, long? excludeUserId, CancellationToken cancellationToken)
     {
         var query = _users.AsNoTracking();
-        if (excludeUserId is not null)
+        if (excludeUserId.HasValue)
             query = query.Where(u => u.Id != excludeUserId);
         return await query
-            .AnyAsync(t => t.Email != null && t.Email.Equals(email, StringComparison.OrdinalIgnoreCase),
+            .AnyAsync(t => !string.IsNullOrEmpty(t.Email) && t.Email.Equals(email, StringComparison.OrdinalIgnoreCase),
                 cancellationToken);
     }
 }
