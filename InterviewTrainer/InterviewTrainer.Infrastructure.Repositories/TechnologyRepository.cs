@@ -28,19 +28,20 @@ public class TechnologyRepository : ITechnologyRepository
     public async Task<Technology?> GetAsync(long id, CancellationToken cancellationToken, bool includeRelated = true,
         bool disableTracking = false)
     {
-        if (!disableTracking && !includeRelated)
-        {
-            return await _technologies.FindAsync(id, cancellationToken);
-        }
-        
-        IQueryable<Technology> query = _technologies;
+        var query = _technologies.AsQueryable();
 
         if (disableTracking)
-            query = query.AsNoTracking();
+        {
+            query = query.AsNoTrackingWithIdentityResolution();
+        }
 
         if (includeRelated)
-            query = query.Include(t => t.TopicTechnologies);
-
+        {
+            query = query
+                .Include(t => t.TopicTechnologies)
+                .ThenInclude(tt => tt.Topic);
+        }
+        
         return await query.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 
@@ -78,8 +79,13 @@ public class TechnologyRepository : ITechnologyRepository
 
     public async Task<bool> NameExistsAsync(string name, long? excludeTechnologyId, CancellationToken cancellationToken)
     {
-        return await _technologies
-            .AsNoTracking()
+        var query = _technologies.AsNoTracking();
+
+        if (excludeTechnologyId.HasValue)
+        {
+            query = query.Where(t => t.Id != excludeTechnologyId.Value);
+        }
+        return await query
             .AnyAsync(t => t.Name == name, cancellationToken);
     }
 
