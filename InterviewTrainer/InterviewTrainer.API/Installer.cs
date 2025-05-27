@@ -1,7 +1,7 @@
 ﻿using InterviewTrainer.Application.Abstractions.Repositories;
 using InterviewTrainer.Application.Abstractions.Services;
 using InterviewTrainer.Application.Implementations.Services;
-using InterviewTrainer.Infrastructure.Repositories;
+using InterviewTrainer.Infrastructure.Repositories.Implementations;
 
 namespace InterviewTrainer.API;
 
@@ -37,8 +37,10 @@ public static class Installer
     {
         services
             .AddScoped<IUserRepository, UserRepository>()
+            .AddScoped<IRoleRepository, RoleRepository>()
             .AddScoped<ITechnologyRepository, TechnologyRepository>()
-            .AddScoped<ITopicRepository, TopicRepository>();
+            .AddScoped<ITopicRepository, TopicRepository>()
+            .AddScoped<ITagRepository, TagRepository>();
         
         return services;
     }
