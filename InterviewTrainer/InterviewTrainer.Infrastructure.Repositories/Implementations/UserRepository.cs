@@ -5,7 +5,7 @@ using InterviewTrainer.Domain.Entities;
 using InterviewTrainer.Infrastructure.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
-namespace InterviewTrainer.Infrastructure.Repositories;
+namespace InterviewTrainer.Infrastructure.Repositories.Implementations;
 
 public class UserRepository : IUserRepository
 {
@@ -77,7 +77,7 @@ public class UserRepository : IUserRepository
     {
         var query = _users.AsNoTracking();
 
-        if (filterDto.TelegramId is not null)
+        if (filterDto.TelegramId.HasValue)
         {
             query = query.Where(t => t.TelegramId == filterDto.TelegramId);
         }

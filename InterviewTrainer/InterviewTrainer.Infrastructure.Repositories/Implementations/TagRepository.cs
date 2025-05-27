@@ -5,7 +5,7 @@ using InterviewTrainer.Domain.Entities;
 using InterviewTrainer.Infrastructure.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
-namespace InterviewTrainer.Infrastructure.Repositories;
+namespace InterviewTrainer.Infrastructure.Repositories.Implementations;
 
 public class TagRepository : ITagRepository
 {
