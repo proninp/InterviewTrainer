@@ -9,11 +9,9 @@ public static class Installer
 {
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
-        services
+        return services
             .InstallServices()
             .InstallRepositories();
-        
-        return services;
     }
     
     private static IServiceCollection InstallServices(this IServiceCollection services)
