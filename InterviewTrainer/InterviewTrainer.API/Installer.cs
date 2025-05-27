@@ -40,7 +40,8 @@ public static class Installer
             .AddScoped<IRoleRepository, RoleRepository>()
             .AddScoped<ITechnologyRepository, TechnologyRepository>()
             .AddScoped<ITopicRepository, TopicRepository>()
-            .AddScoped<QuestionRepository, QuestionRepository>()
+            .AddScoped<IQuestionRepository, QuestionRepository>()
+            .AddScoped<ISuggestedAnswerRepository, SuggestedAnswerRepository>()
             .AddScoped<ITagRepository, TagRepository>();
         
         return services;
