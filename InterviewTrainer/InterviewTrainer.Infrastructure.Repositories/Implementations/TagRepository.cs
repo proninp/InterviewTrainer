@@ -48,7 +48,7 @@ public class TagRepository : BaseRepository<Tag>, ITagRepository
     {
         var query = Entities.AsNoTracking();
         if (excludeTagId.HasValue)
-            query = query.Where(t => t.Id != excludeTagId);
+            query = query.Where(t => t.Id != excludeTagId.Value);
         return await query
             .AnyAsync(t => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase),
                 cancellationToken);

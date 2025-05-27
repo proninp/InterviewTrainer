@@ -31,7 +31,7 @@ public class UserRepository(DatabaseContext context) : BaseRepository<User>(cont
 
         if (filterDto.TelegramId.HasValue)
         {
-            query = query.Where(t => t.TelegramId == filterDto.TelegramId);
+            query = query.Where(t => t.TelegramId == filterDto.TelegramId.Value);
         }
 
         if (!string.IsNullOrWhiteSpace(filterDto.UserName))
@@ -88,7 +88,7 @@ public class UserRepository(DatabaseContext context) : BaseRepository<User>(cont
     {
         var query = Entities.AsNoTracking();
         if (excludeUserId.HasValue)
-            query = query.Where(u => u.Id != excludeUserId);
+            query = query.Where(u => u.Id != excludeUserId.Value);
         return await query
             .AnyAsync(t => t.TelegramId != null && t.TelegramId == telegramId, cancellationToken);
     }
@@ -97,7 +97,7 @@ public class UserRepository(DatabaseContext context) : BaseRepository<User>(cont
     {
         var query = Entities.AsNoTracking();
         if (excludeUserId.HasValue)
-            query = query.Where(u => u.Id != excludeUserId);
+            query = query.Where(u => u.Id != excludeUserId.Value);
         return await query
             .AnyAsync(t => !string.IsNullOrEmpty(t.Email) && t.Email.Equals(email, StringComparison.OrdinalIgnoreCase),
                 cancellationToken);
