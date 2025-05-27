@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\InterviewTrainer.Application.Abstractions\InterviewTrainer.Application.Abstractions.csproj" />
+      <ProjectReference Include="..\InterviewTrainer.Infrastructure.EntityFramework\InterviewTrainer.Infrastructure.EntityFramework.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -6,9 +6,9 @@ namespace InterviewTrainer.Application.Abstractions.Repositories;
 public interface ITopicRepository : IRepository<Topic>
 {
     Task<bool> ExistsByNameAsync(string name, long? excludeTopicId, CancellationToken cancellationToken);
-    
-    Task<IEnumerable<Topic>> GetTopicsByTechnologyNameAsync(string technologyName, CancellationToken cancellationToken);
-    
+
+    Task<IEnumerable<Topic>> GetTopicsByTechnologyNameAsync(string technologyName, CancellationToken cancellationToken,
+        bool archived = false);
+
     Task<IEnumerable<Topic>> GetPagedAsync(TopicFilterDto filterDto, CancellationToken cancellationToken);
-    
 }

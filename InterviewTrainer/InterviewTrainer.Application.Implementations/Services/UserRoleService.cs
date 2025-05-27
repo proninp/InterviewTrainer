@@ -22,7 +22,7 @@ public class UserRoleService : IUserRoleService
 
     public async Task<Result<bool>> CheckUserRoleExistsAsync(long userId, long roleId, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetAsync(userId, cancellationToken, asNoTracking: true);
+        var user = await _userRepository.GetAsync(userId, cancellationToken, disableTracking: true);
         return user is null 
             ? Result.Fail<bool>(ErrorsFactory.NotFound(nameof(user), userId))
             : Result.Ok(user.UserRoles.Any(ur => ur.RoleId == roleId));

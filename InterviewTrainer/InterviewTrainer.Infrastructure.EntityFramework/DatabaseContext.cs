@@ -10,7 +10,7 @@ public class DatabaseContext : DbContext, IUnitOfWork
 {
     private readonly DbSettings _options;
 
-    protected DatabaseContext(IOptionsSnapshot<DbSettings> options)
+    public DatabaseContext(IOptionsSnapshot<DbSettings> options)
     {
         _options = options.Value;
     }
