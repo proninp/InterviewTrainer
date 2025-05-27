@@ -93,7 +93,7 @@ public class UserService : IUserService
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        _userRepository.Delete(id);
+        await _userRepository.DeleteAsync(id, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
     }
 

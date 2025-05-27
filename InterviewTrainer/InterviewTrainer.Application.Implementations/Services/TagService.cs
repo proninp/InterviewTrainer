@@ -72,7 +72,7 @@ public class TagService : ITagService
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        _tagRepository.Delete(id);
+        await _tagRepository.DeleteAsync(id, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
     }
     

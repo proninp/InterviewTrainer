@@ -84,7 +84,7 @@ public class TechnologyService : ITechnologyService
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        _technologyRepository.Delete(id);
+        await _technologyRepository.DeleteAsync(id, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
     }
 

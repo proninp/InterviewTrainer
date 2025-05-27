@@ -79,7 +79,7 @@ public class TopicService : ITopicService
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        _topicRepository.Delete(id);
+        await _topicRepository.DeleteAsync(id, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
     }
 

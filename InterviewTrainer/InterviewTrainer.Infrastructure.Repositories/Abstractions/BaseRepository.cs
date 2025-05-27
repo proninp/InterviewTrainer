@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace InterviewTrainer.Infrastructure.Repositories.Abstractions;
 
 public abstract class BaseRepository<T>(DatabaseContext context) : IRepository<T>
-    where T : IdentityModel, new()
+    where T : IdentityModel
 {
     private protected readonly DbSet<T> Entities = context.Set<T>();
 
@@ -47,9 +47,9 @@ public abstract class BaseRepository<T>(DatabaseContext context) : IRepository<T
         }
     }
 
-    public void Delete(long id)
+    public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        var entity = new T { Id = id };
-        context.Entry(entity).State = EntityState.Deleted;
+        await Entities.Where(e => e.Id == id)
+            .ExecuteDeleteAsync(cancellationToken);
     }
 }

@@ -92,7 +92,7 @@ public class RoleService : IRoleService
 
     public async Task DeleteAsync(long id, CancellationToken cancellationToken)
     {
-        _roleRepository.Delete(id);
+        await _roleRepository.DeleteAsync(id, cancellationToken);
         await _unitOfWork.CommitAsync(cancellationToken);
     }
 

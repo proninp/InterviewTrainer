@@ -2,16 +2,9 @@
 
 namespace InterviewTrainer.Domain.Entities;
 
-public class Tag : IdentityModel
+public class Tag(string name) : IdentityModel
 {
-    public string Name { get; set; }
-    
-    public ICollection<QuestionTag> QuestionTags { get; set; } = new List<QuestionTag>();
-    
-    public Tag() { }
+    public string Name { get; set; } = name;
 
-    public Tag(string name)
-    {
-        Name = name;
-    }
+    public ICollection<QuestionTag> QuestionTags { get; set; } = new List<QuestionTag>();
 }

@@ -19,5 +19,5 @@ public interface IRepository<T>
 
     void UpdatePartial(T entity, params Expression<Func<T, object>>[] properties);
 
-    void Delete(long id);
+    Task DeleteAsync(long id, CancellationToken cancellationToken);
 }

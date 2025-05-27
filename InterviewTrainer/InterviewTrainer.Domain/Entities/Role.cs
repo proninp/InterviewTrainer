@@ -2,19 +2,11 @@
 
 namespace InterviewTrainer.Domain.Entities;
 
-public class Role : IdentityModel
+public class Role(string name, string? description = null) : IdentityModel
 {
-    public string Name { get; set; }
+    public string Name { get; set; } = name;
 
-    public string? Description { get; set; }
+    public string? Description { get; set; } = description;
 
     public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
-
-    public Role() {  }
-
-    public Role(string name, string? description = null)
-    {
-        Name = name;
-        Description = description;
-    }
 }
