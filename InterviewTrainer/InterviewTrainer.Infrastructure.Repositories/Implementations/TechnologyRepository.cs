@@ -1,34 +1,18 @@
-﻿using System.Linq.Expressions;
-using InterviewTrainer.Application.Abstractions.Repositories;
+﻿using InterviewTrainer.Application.Abstractions.Repositories;
 using InterviewTrainer.Application.Contracts.Technologies;
 using InterviewTrainer.Domain.Entities;
 using InterviewTrainer.Infrastructure.EntityFramework;
+using InterviewTrainer.Infrastructure.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace InterviewTrainer.Infrastructure.Repositories.Implementations;
 
-public class TechnologyRepository : ITechnologyRepository
+public class TechnologyRepository(DatabaseContext context) : BaseRepository<Technology>(context), ITechnologyRepository
 {
-    private readonly DatabaseContext _context;
-    private readonly DbSet<Technology> _technologies;
-
-    public TechnologyRepository(DatabaseContext context)
-    {
-        _context = context;
-        _technologies = _context.Set<Technology>();
-    }
-
-    public async Task<bool> AnyAsync(long id, CancellationToken cancellationToken)
-    {
-        return await _technologies
-            .AsNoTracking()
-            .AnyAsync(t => t.Id == id, cancellationToken);
-    }
-
-    public async Task<Technology?> GetAsync(long id, CancellationToken cancellationToken, bool includeRelated = true,
+    public override async Task<Technology?> GetAsync(long id, CancellationToken cancellationToken, bool includeRelated = true,
         bool disableTracking = false)
     {
-        var query = _technologies.AsQueryable();
+        var query = Entities.AsQueryable();
 
         if (disableTracking)
         {
@@ -45,41 +29,9 @@ public class TechnologyRepository : ITechnologyRepository
         return await query.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 
-    public async Task<Technology> AddAsync(Technology entity, CancellationToken cancellationToken)
-    {
-        var resultAdd = await _technologies.AddAsync(entity, cancellationToken);
-        return resultAdd.Entity;
-    }
-
-    public async Task AddRangeAsync(ICollection<Technology> entities, CancellationToken cancellationToken)
-    {
-        var enumerable = entities as List<Technology> ?? entities.ToList();
-        await _technologies.AddRangeAsync(enumerable, cancellationToken);
-    }
-
-    public void Update(Technology entity)
-    {
-        var resultUpdate = _technologies.Update(entity);
-    }
-
-    public void UpdatePartial(Technology entity, params Expression<Func<Technology, object>>[] properties)
-    {
-        _context.Attach(entity);
-        foreach (var property in properties)
-        {
-            _context.Entry(entity).Property(property).IsModified = true;
-        }
-    }
-
-    public void Delete(long id)
-    {
-        var entity = new Technology { Id = id };
-        _context.Entry(entity).State = EntityState.Deleted;
-    }
-
     public async Task<bool> NameExistsAsync(string name, long? excludeTechnologyId, CancellationToken cancellationToken)
     {
-        var query = _technologies.AsNoTracking();
+        var query = Entities.AsNoTracking();
 
         if (excludeTechnologyId.HasValue)
         {
@@ -92,7 +44,7 @@ public class TechnologyRepository : ITechnologyRepository
     public async Task<IEnumerable<Technology>> GetPagedAsync(TechnologyFilterDto filterDto,
         CancellationToken cancellationToken)
     {
-        var query = _technologies.AsQueryable();
+        var query = Entities.AsQueryable();
         
         if (!string.IsNullOrWhiteSpace(filterDto.Name))
         {

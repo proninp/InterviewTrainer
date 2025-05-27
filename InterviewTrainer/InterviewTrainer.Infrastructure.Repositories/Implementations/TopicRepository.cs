@@ -3,32 +3,17 @@ using InterviewTrainer.Application.Abstractions.Repositories;
 using InterviewTrainer.Application.Contracts.Topics;
 using InterviewTrainer.Domain.Entities;
 using InterviewTrainer.Infrastructure.EntityFramework;
+using InterviewTrainer.Infrastructure.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace InterviewTrainer.Infrastructure.Repositories.Implementations;
 
-public class TopicRepository : ITopicRepository
+public class TopicRepository(DatabaseContext context) : BaseRepository<Topic>(context), ITopicRepository
 {
-    private readonly DatabaseContext _context;
-    private readonly DbSet<Topic> _topics;
-
-    public TopicRepository(DatabaseContext context)
-    {
-        _context = context;
-        _topics = context.Set<Topic>();
-    }
-
-    public async Task<bool> AnyAsync(long id, CancellationToken cancellationToken)
-    {
-        return await _topics
-            .AsNoTracking()
-            .AnyAsync(t => t.Id == id, cancellationToken);
-    }
-
-    public async Task<Topic?> GetAsync(long id, CancellationToken cancellationToken, bool includeRelated = true,
+    public override async Task<Topic?> GetAsync(long id, CancellationToken cancellationToken, bool includeRelated = true,
         bool disableTracking = false)
     {
-        var query = _topics.AsQueryable();
+        var query = Entities.AsQueryable();
         
         if (disableTracking)
             query = query.AsNoTrackingWithIdentityResolution();
@@ -41,41 +26,9 @@ public class TopicRepository : ITopicRepository
         return await query.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
     }
 
-    public async Task<Topic> AddAsync(Topic entity, CancellationToken cancellationToken)
-    {
-        var resultAdd = await _topics.AddAsync(entity, cancellationToken);
-        return resultAdd.Entity;
-    }
-
-    public async Task AddRangeAsync(ICollection<Topic> entities, CancellationToken cancellationToken)
-    {
-        var enumerable = entities as List<Topic> ?? entities.ToList();
-        await _topics.AddRangeAsync(enumerable, cancellationToken);
-    }
-
-    public void Update(Topic entity)
-    {
-        _ = _topics.Update(entity);
-    }
-
-    public void UpdatePartial(Topic entity, params Expression<Func<Topic, object>>[] properties)
-    {
-        _context.Attach(entity);
-        foreach (var property in properties)
-        {
-            _context.Entry(entity).Property(property).IsModified = true;
-        }
-    }
-
-    public void Delete(long id)
-    {
-        var entity = new Topic { Id = id };
-        _context.Entry(entity).State = EntityState.Deleted;
-    }
-
     public async Task<bool> ExistsByNameAsync(string name, long? excludeTopicId, CancellationToken cancellationToken)
     {
-        var query = _topics.AsNoTracking();
+        var query = Entities.AsNoTracking();
 
         if (excludeTopicId.HasValue)
         {
@@ -88,7 +41,7 @@ public class TopicRepository : ITopicRepository
     public async Task<IEnumerable<Topic>> GetTopicsByTechnologyNameAsync(string technologyName,
         CancellationToken cancellationToken, bool archived = false)
     {
-        var query = _topics.AsNoTrackingWithIdentityResolution();
+        var query = Entities.AsNoTrackingWithIdentityResolution();
         
         query = query
             .Where(t => t.Archived == archived)
@@ -101,7 +54,7 @@ public class TopicRepository : ITopicRepository
 
     public async Task<IEnumerable<Topic>> GetPagedAsync(TopicFilterDto filterDto, CancellationToken cancellationToken)
     {
-        var query = _topics.AsQueryable();
+        var query = Entities.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(filterDto.Name))
         {

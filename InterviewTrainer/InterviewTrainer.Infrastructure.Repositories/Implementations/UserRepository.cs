@@ -1,34 +1,18 @@
-﻿using System.Linq.Expressions;
-using InterviewTrainer.Application.Abstractions.Repositories;
+﻿using InterviewTrainer.Application.Abstractions.Repositories;
 using InterviewTrainer.Application.Contracts.Users;
 using InterviewTrainer.Domain.Entities;
 using InterviewTrainer.Infrastructure.EntityFramework;
+using InterviewTrainer.Infrastructure.Repositories.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 namespace InterviewTrainer.Infrastructure.Repositories.Implementations;
 
-public class UserRepository : IUserRepository
+public class UserRepository(DatabaseContext context) : BaseRepository<User>(context), IUserRepository
 {
-    private readonly DatabaseContext _context;
-    private readonly DbSet<User> _users;
-
-    public UserRepository(DatabaseContext context)
-    {
-        _context = context;
-        _users = context.Set<User>();
-    }
-
-    public async Task<bool> AnyAsync(long id, CancellationToken cancellationToken)
-    {
-        return await _users
-            .AsNoTracking()
-            .AnyAsync(t => t.Id == id, cancellationToken);
-    }
-
-    public async Task<User?> GetAsync(long id, CancellationToken cancellationToken, bool includeRelated = true,
+    public override async Task<User?> GetAsync(long id, CancellationToken cancellationToken, bool includeRelated = true,
         bool disableTracking = false)
     {
-        var query = _users.AsQueryable();
+        var query = Entities.AsQueryable();
 
         if (disableTracking)
             query = query.AsNoTrackingWithIdentityResolution();
@@ -40,42 +24,10 @@ public class UserRepository : IUserRepository
 
         return await query.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
     }
-
-    public async Task<User> AddAsync(User entity, CancellationToken cancellationToken)
-    {
-        var resultAdd = await _users.AddAsync(entity, cancellationToken);
-        return resultAdd.Entity;
-    }
-
-    public async Task AddRangeAsync(ICollection<User> entities, CancellationToken cancellationToken)
-    {
-        var enumerable = entities as List<User> ?? entities.ToList();
-        await _users.AddRangeAsync(enumerable, cancellationToken);
-    }
-
-    public void Update(User entity)
-    {
-        _ = _users.Update(entity);
-    }
-
-    public void UpdatePartial(User entity, params Expression<Func<User, object>>[] properties)
-    {
-        _context.Attach(entity);
-        foreach (var property in properties)
-        {
-            _context.Entry(entity).Property(property).IsModified = true;
-        }
-    }
-
-    public void Delete(long id)
-    {
-        var entity = new User { Id = id };
-        _context.Entry(entity).State = EntityState.Deleted;
-    }
-
+    
     public async Task<IEnumerable<User>> GetPagedAsync(UserFilterDto filterDto, CancellationToken cancellationToken)
     {
-        var query = _users.AsNoTracking();
+        var query = Entities.AsNoTracking();
 
         if (filterDto.TelegramId.HasValue)
         {
@@ -102,7 +54,7 @@ public class UserRepository : IUserRepository
 
     public async Task<IEnumerable<User>> GetUsersByRoleNameAsync(string roleName, CancellationToken cancellationToken)
     {
-        var query = _users.AsNoTrackingWithIdentityResolution();
+        var query = Entities.AsNoTrackingWithIdentityResolution();
 
         query = query
             .Include(u => u.UserRoles)
@@ -116,7 +68,7 @@ public class UserRepository : IUserRepository
         bool includeRelated = true,
         bool disableTracking = false)
     {
-        var query = _users.AsQueryable();
+        var query = Entities.AsQueryable();
         
         if (disableTracking)
             query = query.AsNoTracking();
@@ -134,7 +86,7 @@ public class UserRepository : IUserRepository
     public async Task<bool> ExistsByTelegramIdAsync(long telegramId, long? excludeUserId,
         CancellationToken cancellationToken)
     {
-        var query = _users.AsNoTracking();
+        var query = Entities.AsNoTracking();
         if (excludeUserId.HasValue)
             query = query.Where(u => u.Id != excludeUserId);
         return await query
@@ -143,7 +95,7 @@ public class UserRepository : IUserRepository
 
     public async Task<bool> ExistsByEmailAsync(string email, long? excludeUserId, CancellationToken cancellationToken)
     {
-        var query = _users.AsNoTracking();
+        var query = Entities.AsNoTracking();
         if (excludeUserId.HasValue)
             query = query.Where(u => u.Id != excludeUserId);
         return await query
